@@ -10,7 +10,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *">
+    <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *"-->
 
     <!-- Required meta tags-->
     <meta charset="utf-8">
@@ -20,6 +20,15 @@
     <meta name="theme-color" content="#2196f3">
     <!-- Your app title -->
     <title>Radio Alerta</title>
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<!--script src="https://www.gstatic.com/firebasejs/7.13.2/firebase-app.js"></script-->
+<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+     <!--script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script-->
+<script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-auth.js"></script>
+
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
     <!-- Path to Framework7 Library CSS -->
@@ -165,6 +174,25 @@
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="lib/framework7/js/framework7.bundle.min.js"></script>
     <script type="text/javascript" src="js/my-app.js"></script>
+
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDEf86PdpAp1Ql2W-3fGr6v1spNIFFI7-M",
+    authDomain: "radioalerta-537e6.firebaseapp.com",
+    databaseURL: "https://radioalerta-537e6.firebaseio.com",
+    projectId: "radioalerta-537e6",
+    storageBucket: "radioalerta-537e6.appspot.com",
+    messagingSenderId: "131666164662",
+    appId: "1:131666164662:web:3f25001d9f935faf335f17"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
+
 </body>
+
+
 
 </html>

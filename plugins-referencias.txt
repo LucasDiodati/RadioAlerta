@@ -1,0 +1,17 @@
+listar los plugins instalados
+phonegap plugins list
+
+para eliminar un plugin
+phonegap plugin remove NOMBREDELPLUGIN
+
+si no deja eliminar el plugin 
+phonegap platform list
+phonegap platform remove browser
+
+para instalar el plugin
+phonegap plugin add NOMBREDELPLUGIN
+
+EL DE GEOLOCALIZACION >>> cordova-plugin-geolocation
+
+
+cordova.apache.org/plugins

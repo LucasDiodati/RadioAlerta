@@ -1,1 +1,14 @@
-{"devDependencies":{"cordova-plugin-whitelist":"1"},"cordova":{"plugins":{"cordova-plugin-whitelist":{}}}}
+{
+  "devDependencies": {
+    "cordova-plugin-whitelist": "1"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-geolocation": {}
+    }
+  },
+  "dependencies": {
+    "cordova-plugin-geolocation": "4.0.2"
+  }
+}

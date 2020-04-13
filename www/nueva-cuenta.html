@@ -1,6 +1,6 @@
 <!-- We don't need a full layout in this file because this page will be parsed with Ajax.  -->
 <div class="page" data-name="crearCuenta">
-    <div class="navbar">
+    <div class="navbar celeste">
         <div class="navbar-inner sliding banda rojo">
         <div class="left">
             <a href="#" class="link back">
@@ -13,14 +13,14 @@
         </div>
     </div>
     <div class="page-content fondo-degrade">
-<br/><br/>
+<br/>
 <div class="list no-hairlines-md">
   <ul>
     <li class="item-content item-input item-input-outline">
       <div class="item-inner">
         <div class="item-title item-floating-label celeste solido">Nombre y apellido</div>
         <div class="item-input-wrap celeste">
-          <input type="text" placeholder="Nombre y apellido">
+          <input type="text" placeholder="Nombre y apellido" required validate>
           <span class="input-clear-button solido"></span>
         </div>
       </div>
@@ -29,7 +29,7 @@
       <div class="item-inner">
         <div class="item-title item-floating-label celeste solido">Teléfono</div>
         <div class="item-input-wrap celeste">
-          <input type="tel" placeholder="+54 11 5555 5555">
+          <input type="tel" placeholder="+54 11 5555 5555" required validate>
           <span class="input-clear-button solido"></span>
         </div>
       </div>
@@ -38,7 +38,7 @@
       <div class="item-inner">
         <div class="item-title item-floating-label celeste solido">Email</div>
         <div class="item-input-wrap celeste">
-          <input type="email" placeholder="nombre@ejemplo.com.ar">
+          <input type="email" placeholder="nombre@ejemplo.com.ar" id="email" required validate>
           <span class="input-clear-button solido"></span>
         </div>
       </div>
@@ -47,7 +47,7 @@
       <div class="item-inner">
         <div class="item-title item-floating-label celeste solido">Usuario</div>
         <div class="item-input-wrap celeste">
-          <input type="text" placeholder="Usuario">
+          <input type="text" placeholder="Usuario" required validate>
           <span class="input-clear-button solido"></span>
         </div>
       </div>
@@ -56,7 +56,7 @@
       <div class="item-inner">
         <div class="item-title item-floating-label celeste solido">Contraseña</div>
         <div class="item-input-wrap celeste">
-          <input type="password" placeholder="Contraseña">
+          <input type="password" placeholder="Contraseña" id="password" required validate>
           <span class="input-clear-button solido"></span>
         </div>
       </div>
@@ -64,14 +64,14 @@
   </ul>
 </div>
 
-<a href="#" data-popup=".avatares" class="popup-open avatares" id="avatar"><div class="abrirAvatares"><img src="img/persona.png" class="avatar"><p class="subtitulo">Seleccionar avatar</p></div></a>
+<a href="#" data-popup=".avatares" class="popup-open avatares" id="avatar"><div class="abrirAvatares"><img src="img/persona.png" class="avatarSeleccionado"><p class="subtitulo">Seleccionar avatar</p></div></a>
 
 
 <p id="acepto">
 <label class="checkbox"><input type="checkbox"><i class="icon-checkbox"></i></label>
 Acepto los <a href="#" data-popup=".terminos" class="popup-open solido">términos y condiciones</a></p>
 
-<button class="row button button-large button-fill azul centrado derecha"><a href="/ubicacion/" class="blanco">Listo!</a></button>
+<a href="/ubicacion/" class="blanco" id="crearUsuario"><button class="row button button-large button-fill azul centrado derecha">Listo!</button></a>
 <br/><br/><br/><br/>
 
 <hr>

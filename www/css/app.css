@@ -150,10 +150,30 @@ margin:0px 30vw;
 background-color: rgb(155,196,226);
 }
 
-.avatar{
+.fondoBlanco{
+	background-color: #fff;
+}
+
+.avatarSeleccionado{
 	width: 5em;
 	padding: 1em 2.5em;
 padding-bottom: 0.5px;
+}
+
+.elegido{
+	width: 10em;
+	padding-left: 0px;
+	margin-bottom: 0em;
+}
+
+.oculto{
+	display: none;
+}
+
+.bordeAv{
+	border: 3px solid  rgb(42,82,190);
+	padding: auto 2em;
+	height: 11em;
 }
 
 .av{
@@ -171,6 +191,8 @@ color: #000;
 #acepto{
 text-align: center;
 }
+
+
 
 
 /**********************Si encuentro la forma uso estas fuentes***************************/
