@@ -30,6 +30,10 @@ var app = new Framework7({
         path: '/ubicacion/',
         url: 'ubicacion.html',
       },
+      {
+        path: '/chats/',
+        url: 'chats.html',
+      },
     ]
     // ... other parameters
   });
@@ -64,17 +68,26 @@ $$(document).on('page:init', '.page[data-name="inicioSesion"]', function (e) {
 $$('#ingresar').on('click',function(){
 var email = $$('#emailLogin').val();
 var password = $$('#passwordLogin').val();
-  console.log('intento '+email);
-firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
-  // Handle Errors here.
-  var errorCode = error.code;
-  var errorMessage = error.message;
-  console.log(errorMessage);
-  // ...
-});
-});
+//Se declara la variable huboError (bandera)
+        var huboError = 0;
+firebase.auth().signInWithEmailAndPassword(email, password)
+      .catch(function(error) {
+//Si hubo algun error, ponemos un valor referenciable en la variable huboError
+            huboError = 1;
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.error(errorMessage);
+            console.log(errorCode);
+})
+ .then(function(){   
+//En caso de que esté correcto el inicio de sesión y no haya errores, se dirige a la siguiente página
+            if(huboError == 0){
+                mainView.router.navigate('/chats/');
+            }
+        }); 
+        }); 
 // segun la documentacion de firebase hay que poner un observador para ver si se hizo el login
-firebase.auth().onAuthStateChanged(function(user) {
+/*firebase.auth().onAuthStateChanged(function(user) {
   console.log('state change');
   if (user) { 
     // User is signed in.
@@ -93,7 +106,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     console.log('User is signed out');
   }
 });
-
+*/
 
 })
 /****************************************************************************************/
