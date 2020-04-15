@@ -11,8 +11,8 @@
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
 
-<!--Me tira un error esto-->
-<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';">
+<!--CSP con permisos para varias cosas - creo que hay que cambiarlo cuando se compile-->
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs ">
     <!-- Required meta tags-->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
@@ -88,7 +88,6 @@
                       </div>
 
                     <!-- RECUPERAR CONTRASEÑA -->
-
                       <div class="popup recuperar">
                         <div class="view">
                           <div class="page">
@@ -111,9 +110,7 @@
                         </div>
                       </div>
 
-
                     <!-- TÉRMINOS Y CONDICIONES -->
-
                       <div class="popup terminos">
                         <div class="view">
                           <div class="page">
@@ -166,10 +163,51 @@
 
 
 
-
                     </div>
                 </div>
             </div>
+
+
+<!-- MENU USUARIOS -->
+<div class="panel panel-left panel-reveal panel-resizable panel-init">
+<div class="menuLateral">
+<div class="menuPerfil azul row no-gap">
+<div class="col-35">
+<img src="img/min/1.png" class="av menuAvatar">
+</div>
+<div class="col-65">
+<p class="miPerfil">MI PERFIL</p>
+<p class="nombreMenu">@LucasD</p>
+</div>
+</div>
+<ul>
+<li class="opcionMenu">
+<a href="/chats/" class="panel-close">Ubicaciones</a><img src="img/ico-ubicacion.png" class="icono">
+</li>    
+<li class="opcionMenu b">
+<a href="#">Grupos</a><img src="img/ico-grupos.png" class="icono ico-grupo">
+</li>    
+<li class="opcionMenu">
+<a href="#">Favoritos</a><img src="img/ico-fav.png" class="icono">
+</li>    
+<li class="opcionMenu b">
+<a href="#">Bloqueos</a><img src="img/ico-bloq.png" class="icono">
+</li>    
+<li class="opcionMenu">
+<a href="#">Vincular</a><img src="img/ico-vincular.png" class="icono">
+</li>    
+<li class="opcionMenu b">
+<a href="#">Configuración</a><img src="img/config.png" class="icono">
+</li>    
+<li class="opcionMenu">
+<a href="#">Ayuda</a>
+</li>    
+</ul>
+</div>
+</div>
+
+
+
         </div>
     </div>
     <script type="text/javascript" src="cordova.js"></script>

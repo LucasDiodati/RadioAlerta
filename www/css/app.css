@@ -205,7 +205,7 @@ text-align: center;
 }
 
 #agregarUbicacion{
-padding-left: 40%;
+	padding-left: 30%;
 	font-weight: bold;
 }
 
@@ -220,11 +220,9 @@ display: inline;
 	padding-top: 0.5em;
 }
 
-.configuracion{
-	background-color: #E6E6E6;
-	display: inline;
-	padding: 2.3em 0.3em;
-	height: 100%;
+
+.swipeout-actions-right a{
+	background: rgba(222,222,222,1);
 }
 
 .puntero{
@@ -232,6 +230,12 @@ display: inline;
 	display: inline;
 	padding: 0px 0.8em;
 	padding-top: 0.7em;
+}
+
+.punteroChat{
+width: 0.8em;
+display: inline;
+	padding: 0px 0.2em;
 }
 
 .config{
@@ -243,6 +247,9 @@ display: inline;
 	width: 4.5em;
 	display: inline;
 	margin-top: 1em;
+	float: right;
+	margin-right: 3em;
+
 }
 
 .gral .imagenUbicacion{
@@ -259,13 +266,20 @@ display: inline;
 	font-size: 1.3em; 
 }
 
+.ubicacionChat{
+	display: block;
+	color: #FE2F63;
+	font-size: 0.8em;
+}
+
+
 .tituloUbicacion{
 	padding-left: 1em;
 	font-size: 1.8em;
 	text-transform: uppercase;
 }
 .tituloUbicacion.solo{
-padding-top: 1.2em;
+padding-top: 0.8em;
 
 }
 
@@ -276,6 +290,145 @@ padding-top: 1.2em;
 	margin: 0px;
 	padding-left: 1em;
 }
+
+ul{
+	margin: 0px;
+	padding: 0px;
+	list-style: none;
+}
+
+.list .item-content{
+	padding: 0px;
+
+}
+
+.list{
+margin: 0px;
+font-size: inherit;
+width: 100%;
+}
+
+.accordion-list{
+	width: 100%;
+}
+
+.al100{
+	width: 100%;
+}
+
+.menuAvatar{
+	border: 3px solid rgb(254,47,99);
+	border-radius: 100%;
+	background-color: #fff;
+}
+
+.nombreMenu{
+	color: #fff;
+	font-weight: bold;
+	padding-left: 0.5em;
+	font-size: 1.5em;
+	margin: 0px;
+}
+
+.menuLateral{
+	margin: 0px;
+}
+
+.panel-left{
+	background-color: #bbb;
+}
+
+.menuPerfil{
+margin: 0px;
+padding: 1em;
+}
+
+.miPerfil{
+color: #9BC4E2;
+font-weight: bold;
+padding-left: 1em;
+}
+
+.opcionMenu{
+background-color: #ccc;
+padding: 0.6em;
+
+}
+.opcionMenu a{
+color: #000;
+font-weight: bold;
+font-size: 1.2em;
+padding-left: 1.3em;
+}
+
+.icono{
+	height: 1.7em;
+	float: right;
+	margin-right: 1em;
+}
+
+.ico-grupo{
+	margin-right: 0.5em;
+}
+
+.b{
+background-color: #bbb;
+}
+
+.sinCambio{
+	color: inherit;
+}
+
+.cajaTexto{
+	background-color: #fff;
+	color: #000;
+	border-radius: 2em;
+}
+.iconoChat{
+	height: 2em;
+	margin: 0.2em;
+}
+
+.message-sent .message-bubble{
+background-color: #9BC4E2;
+color: #333;
+}
+
+.message-received .message-bubble{
+background-color: #FE2F63;
+color: #fff;
+}
+
+.md .message-received.message-tail .message-bubble:before{
+    border-bottom: 8px solid #FE2F63;
+}
+
+.md .message-sent.message-tail .message-bubble:before{
+    border-bottom: 8px solid #9BC4E2;
+}
+
+.message-avatar{
+	height: 3em;
+	width: 3em;
+}
+
+.avatar-enviado{
+background-image:url('/img/min/1.png');
+	border: 3px solid #9BC4E2;
+}
+
+.avatar-recibido{
+background-image:url('/img/min/12.png');
+	border: 3px solid #FE2F63;
+}
+
+.message-name{
+font-size: 1em;
+font-weight: bold;
+color:#000;
+text-align: left;
+}
+
 
 /**********************Si encuentro la forma uso estas fuentes***************************/
 @font-face {
