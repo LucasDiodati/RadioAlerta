@@ -205,6 +205,12 @@ $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
 $$('#chatGeneral').on('click',function(){tituloChat = "Chat general"; mainView.router.navigate('/chat-general/');});
 $$('#chatCasa').on('click',function(){tituloChat = "Casa"; mainView.router.navigate('/chat-general/'); });
 
+/*HACER LA QUERY A LA BD Y CARGAR TODA LA INFO DE USUARIO AL PANEL*/
+
+
+
+
+
 })
 
 /****************************************************************************************/
@@ -297,7 +303,7 @@ var answers = [
   'Of course',
   'Need to think about it',
   'Amazing!!!'
-]/*
+]
 var people = [
   {
     name: 'Kate Johnson',
@@ -334,7 +340,7 @@ function receiveMessage() {
       responseInProgress = false;
     }, 4000);
   }, 1000);
-}*/
+}
 
 })
 
@@ -351,7 +357,7 @@ $$('#iniciarSesion').on('click',function(){nuevaCuenta = 0; mainView.router.navi
 $$(document).on('page:init', '.page[data-name="inicioSesion"]', function (e) {
   //  console.log(e);
 
-// Voy a usar esta misma vista para crear la cuenta con el servicio de autenticacion tambien
+// Voy a usar esta misma vista para crear la cuenta con el servicio de autenticacion
 // sign in con firebase auth
 if (nuevaCuenta == 1) {
   if($$('#colorEncabezado').hasClass('azul')){
@@ -368,7 +374,6 @@ crearUsuario();
 
 // toma los valores de email y contraseña y crea la conexión con firebase para almacenarla
 function crearUsuario(){
-
 firebase.auth().createUserWithEmailAndPassword(email, password)
 .catch(function(error) {
 // Handle Errors here.
@@ -381,7 +386,6 @@ alert(errorMessage);
 }
 console.log(errorMessage);
 });
-
 mainView.router.navigate('/crearCuenta/');
 };
 /****************************************************************************************/
@@ -393,11 +397,11 @@ $$('#olvideContrasena').removeClass('oculto');
 }
 // log in con firebase auth
 $$('#ingresar').on('click',function(){
-email = $$('#emailLogin').val();
-password = $$('#passwordLogin').val();
+//email = $$('#emailLogin').val();
+//password = $$('#passwordLogin').val();
 // Estoy puenteando el login para trabajar más comodo con las vistas
- //email = "programacion21@live.com";
- //password = "kat13579";
+email = "programacion21@live.com";
+password = "kat13579";
 
 //Se declara la variable huboError (bandera)
   var huboError = 0;

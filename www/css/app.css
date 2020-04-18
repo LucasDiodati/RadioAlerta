@@ -36,7 +36,7 @@
 }
 
 .blanco{
-	color: white;
+	color: #fff;
 }
 
 .transparente{
@@ -46,6 +46,8 @@
 .solido{
 	color: #000;
 }
+
+
 
 /********************************COLORES******************************************/
 
@@ -57,7 +59,6 @@
 
 .ayuda{
 	text-transform: uppercase;
-	color: #2A52BE;
 	font-size: 1em;
 	font-weight: bold;
 }
@@ -428,6 +429,22 @@ text-align: left;
 
 .chatList{
 padding: 0px;
+}
+
+.transparente{
+	background-color: rgba(255,255,255, 0.0);
+}
+
+.toolbar a{
+	color: #2A52BE;
+}
+
+.toolbar a.interno{
+	color: #FFF;
+}
+
+.ayudaCentrado{
+	padding-left: 45vw;
 }
 
 
