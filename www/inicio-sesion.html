@@ -1,14 +1,14 @@
 <!-- We don't need a full layout in this file because this page will be parsed with Ajax.  -->
 <div class="page" data-name="inicioSesion">
     <div class="navbar">
-        <div class="navbar-inner sliding banda azul">
+        <div class="navbar-inner sliding banda azul" id="colorEncabezado">
         <div class="left">
             <a href="#" class="link back">
             <i class="icon icon-back blanco"></i>
             <span class="ios-only blanco">Volver</span>
             </a>
         </div>
-        <div class="title">Iniciar sesión</div>
+        <div class="title" id="tituloLogin">Iniciar sesión</div>
         <img src="img/logo.png" class="logoEncabezado">
         </div>
     </div>
@@ -41,10 +41,9 @@
 Recordarme</p>
 <button class="row button button-large button-fill azul centrado derecha" id="ingresar">Listo!</button>
 <br/><br/>
-<p class="centrado derecha"><a href="#" data-popup=".recuperar" class="popup-open recuperar blanco">Olvide mi contraseña</a></p>
+<p class="centrado derecha" id="olvideContrasena"><a href="#" data-popup=".recuperar" class="popup-open recuperar blanco">Olvide mi contraseña</a></p>
 <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 <!---------Tengo que ver como alinear "ayuda" al pie, sin usar position absolute o fixed porque se rompe cuando abro el teclado en el celular------------>
                       <p><a href="#" data-popup=".my-popup" class="popup-open ayuda pie">Ayuda</a></p>
-
     </div>
 </div>

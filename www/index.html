@@ -12,7 +12,7 @@
         -->
 
 <!--CSP con permisos para varias cosas - creo que hay que cambiarlo cuando se compile-->
-<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs ">
+<!--meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs "-->
     <!-- Required meta tags-->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
@@ -22,15 +22,6 @@
     <!-- Your app title -->
     <title>Radio Alerta</title>
 
-<!-- The core Firebase JS SDK is always required and must be listed first -->
-<!--script src="https://www.gstatic.com/firebasejs/7.13.2/firebase-app.js"></script-->
-<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
-<!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#available-libraries -->
-     <!--script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script-->
-<script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-auth.js"></script>
-
-
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
     <!-- Path to Framework7 Library CSS -->
     <link rel="stylesheet" href="lib/framework7/css/framework7.bundle.css">
@@ -38,7 +29,8 @@
     <link rel="stylesheet" href="css/icons.css">
     <!-- Path to your custom app styles-->
     <link rel="stylesheet" href="css/app.css">
-    
+
+   
 </head>
 
 <body>
@@ -60,13 +52,23 @@
                     <!-- GRUPO DE BOTONES CON EVENTOS  -->
                         <div class="block no-hairlines logButtons">
                           <div class="row">
-                            <a href="/inicioSesion/"><button class="row button button-large button-fill azul centrado inicio"><img src="img/log_img.png" class="person">Iniciar sesi&oacute;n</button></a>
-                            <a href="/crearCuenta/"><button class="row button button-large button-fill rojo centrado inicio"><img src="img/sign_img.png" class="person">Crear cuenta</button></a>
+                            <a href="#" id="iniciarSesion"><button class="row button button-large button-fill azul centrado inicio"><img src="img/log_img.png" class="person">Iniciar sesi&oacute;n</button></a>
+                            <a href="#" id="nuevaCuenta"><button class="row button button-large button-fill rojo centrado inicio"><img src="img/sign_img.png" class="person">Crear cuenta</button></a>
                           </div>
                         </div>
                     <hr>    
-                    <!-- AYUDA -->
                       <p><a href="#" data-popup=".my-popup" class="popup-open ayuda">Ayuda</a></p>
+<a href="#" data-popup=".popupAvatares" class="popup-open modalAvatares" id="modalAvatares">avatar</a>
+<a href="/crearCuenta/">Link a crear cuenta</a>
+
+<!-----------Por algún motivo en el index (desde el chrome) me carga el mapa si comento en CSP.
+  -----------En la página ubicación no carga el mapa, y desde chrome da un aviso de funcion deprecada de la geolocalización.------------->
+    <!--div style="width: 100vw; height: 480px" id="mapContainer"></div-->
+
+
+</div>
+
+                    <!-- AYUDA -->
                       <div class="popup my-popup">
                         <div class="view">
                           <div class="page">
@@ -125,41 +127,37 @@
                               </div>
                             </div>
                             <div class="page-content">
-
                             Terminos y condiciones ...
-
                             </div>
                           </div>
                         </div>
                       </div>
 
-
-
                     <!-- AVATARES -->
 
-                      <div class="popup avatares">
+                      <div class="popup popupAvatares">
                         <div class="view">
                           <div class="page">
                             <div class="navbar">
-                              <div class="navbar-bg"></div>
+                            <div class="navbar-bg"></div>
                               <div class="navbar-inner">
-                                <div class="title">Seleccionar avatar</div>
+                              <div class="title">Seleccionar avatar</div>
                                 <div class="right">
-                                  <!-- Link to close popup -->
-                                  <a class="link popup-close" id="vaciarAv">Cerrar</a>
+                                <!-- Link to close popup -->
+                                <a class="link popup-close" id="vaciarAv">Cerrar</a>
                                 </div>
                               </div>
                             </div>
                             <div class="page-content">
-<div id="cargaAvatar">
-
-</div>
-
-
+                            <div id="cargaAvatar">
+                              Acá irian los avatares si se abriera bien el popup
+                            </div>
                             </div>
                           </div>
                         </div>
                       </div>
+
+
 
 
 
@@ -168,53 +166,63 @@
             </div>
 
 
-<!-- MENU USUARIOS -->
-<div class="panel panel-left panel-reveal panel-resizable panel-init">
-<div class="menuLateral">
-<div class="menuPerfil azul row no-gap">
-<div class="col-35">
-<img src="img/min/1.png" class="av menuAvatar">
-</div>
-<div class="col-65">
-<p class="miPerfil">MI PERFIL</p>
-<p class="nombreMenu">@LucasD</p>
-</div>
-</div>
-<ul>
-<li class="opcionMenu">
-<a href="/chats/" class="panel-close">Ubicaciones</a><img src="img/ico-ubicacion.png" class="icono">
-</li>    
-<li class="opcionMenu b">
-<a href="#">Grupos</a><img src="img/ico-grupos.png" class="icono ico-grupo">
-</li>    
-<li class="opcionMenu">
-<a href="#">Favoritos</a><img src="img/ico-fav.png" class="icono">
-</li>    
-<li class="opcionMenu b">
-<a href="#">Bloqueos</a><img src="img/ico-bloq.png" class="icono">
-</li>    
-<li class="opcionMenu">
-<a href="#">Vincular</a><img src="img/ico-vincular.png" class="icono">
-</li>    
-<li class="opcionMenu b">
-<a href="#">Configuración</a><img src="img/config.png" class="icono">
-</li>    
-<li class="opcionMenu">
-<a href="#">Ayuda</a>
-</li>    
-</ul>
-</div>
-</div>
-
-
-
+        <!-- MENU USUARIOS -->
+        <div class="panel panel-left panel-reveal panel-resizable panel-init">
+        <div class="menuLateral">
+        <div class="menuPerfil azul row no-gap">
+        <div class="col-35">
+        <img src="img/min/1.png" class="av menuAvatar">
         </div>
-    </div>
-    <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="lib/framework7/js/framework7.bundle.min.js"></script>
-    <script type="text/javascript" src="js/my-app.js"></script>
+        <div class="col-65">
+        <p class="miPerfil">MI PERFIL</p>
+        <p class="nombreMenu">@LucasD</p>
+        </div>
+        </div>
+        <ul>
+        <a href="/chats/" class="  panel-close"><li class="opcionMenu">
+        Ubicaciones<img src="img/ico-ubicacion.png" class="icono">
+        </li></a>
+
+        <a href="#" class="  panel-close"><li class="opcionMenu b">
+        Grupos<img src="img/ico-grupos.png" class="icono ico-grupo">
+        </li></a> 
+
+        <a href="#" class="  panel-close"><li class="opcionMenu">
+        Favoritos<img src="img/ico-fav.png" class="icono">
+        </li></a>
+
+        <a href="#" class="  panel-close">
+          <li class="opcionMenu b">Bloqueos<img src="img/ico-bloq.png" class="icono"></li>
+        </a>
+
+        <a href="#" class="  panel-close">
+          <li class="opcionMenu">Vincular<img src="img/ico-vincular.png" class="icono"></li>
+        </a>
+
+        <a href="#" class="  panel-close">
+          <li class="opcionMenu b">Configuración<img src="img/config.png" class="icono"></li>
+        </a>
+
+        <a href="#" class="  panel-close"><li class="opcionMenu">
+        Ayuda
+        </li></a>
+
+        </ul>
+        </div>
+        </div>
 
 
+</div>
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="lib/framework7/js/framework7.bundle.min.js"></script>
+<script type="text/javascript" src="js/my-app.js"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<!--script src="https://www.gstatic.com/firebasejs/7.13.2/firebase-app.js"></script-->
+<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+<!-- TODO: Add SDKs for Firebase products that you want to use 
+  https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
 <script>
   // Your web app's Firebase configuration
   var firebaseConfig = {
@@ -229,9 +237,8 @@
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
 </script>
-
+<!--script src="https://js.api.here.com/v3/3.1/mapsjs-core.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://js.api.here.com/v3/3.1/mapsjs-service.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/tangram.min.js" type="text/javascript" charset="utf-8"></script-->
 </body>
-
-
-
 </html>

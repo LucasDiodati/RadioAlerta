@@ -5,9 +5,9 @@ var app = new Framework7({
     // App root element
     root: '#app',
     // App Name
-    name: 'My App',
+    name: 'Radio Alerta',
     // App id
-    id: 'com.myapp.test',
+    id: 'com.app.RadioAlerta',
     // Enable swipe panel
     panel: {
       swipe: 'left',
@@ -15,10 +15,6 @@ var app = new Framework7({
     // *****************RUTAS*********************
     routes: [
       {
-        path: '/about/',
-        url: 'about.html',
-      },
-     {
         path: '/inicioSesion/',
         url: 'inicio-sesion.html',
       },
@@ -44,181 +40,162 @@ var app = new Framework7({
 
 var mainView = app.views.create('.view-main');
 
+var email , password, tituloChat, nombre, telefono , usuario , avatar , tipo , lat , lon;
+var sinRuta = "img/1.png";
+var nuevaCuenta = 0;
+/* BASE DE DATOS */
+var db, refUsuarios, refTiposUsuarios;
+
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
     console.log("Device is ready!");
+ 
+// traigo la posicion del GPS 
+/************************************** COMENTO LA GEOLOCALIZACION PORQUE ME TRAE PROBLEMAS CON FIRESTORE
+var onSuccess = function(position) {
+latUsuario = position.coords.latitude;
+lonUsuario = position.coords.longitude;
 
-var email , password, tituloChat;
+lat = latUsuario.toFixed(2);
+lon = lonUsuario.toFixed(2);
+
+console.log(" DR LAT "+lat+" DR LON "+lon);
+};
+    // onError Callback receives a PositionError object
+    //
+    function onError(error) {
+        alert('code: '    + error.code    + '\n' +
+              'message: ' + error.message + '\n');
+    }
+ navigator.geolocation.getCurrentPosition(onSuccess, onError);
+************************************************/
+lat = "36.5";
+lon = "24.7";
+
+  /* seteo variables de BD */
+//          firebase.firestore().db.collection("USUARIOS")
+  db = firebase.firestore();
+  refUsuarios = db.collection("USUARIOS");
+  refTiposUsuarios= db.collection("TIPOS_USUARIOS");
+
+  var iniciarDatos = 0;
+  if ( iniciarDatos == 1 ) {
+      fnIniciarDatos();
+  }
 
 });
 
 // Option 1. Using one 'page:init' handler for all pages
 $$(document).on('page:init', function (e) {
     // Do something here when page loaded and initialized
-    console.log(e);
-})
-/****************************************************************************************/
-$$(document).on('page:init', '.page[data-name="index"]', function (e) {
-    console.log(e);
-})
-/****************************************************************************************/
-$$(document).on('page:init', '.page[data-name="about"]', function (e) {
-    console.log(e);
-})
-/****************************************************************************************/
-$$(document).on('page:init', '.page[data-name="inicioSesion"]', function (e) {
-    console.log(e);
-
-// login con firebase
-
-$$('#ingresar').on('click',function(){
-
-// email = $$('#emailLogin').val();
-// password = $$('#passwordLogin').val();
-// Estoy puenteando el login para trabajar más comodo con las vistas
- email = "programacion21@live.com";
- password = "kat13579";
-
-//Se declara la variable huboError (bandera)
-        var huboError = 0;
-firebase.auth().signInWithEmailAndPassword(email, password)
-      .catch(function(error) {
-//Si hubo algun error, ponemos un valor referenciable en la variable huboError
-            huboError = 1;
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            console.error(errorMessage);
-            console.log(errorCode);
-})
- .then(function(){   
-//En caso de que esté correcto el inicio de sesión y no haya errores, se dirige a la siguiente página
-            if(huboError == 0){
-                mainView.router.navigate('/chats/');
-            }
-        }); 
-        }); 
-// segun la documentacion de firebase hay que poner un observador para ver si se hizo el login
-/*firebase.auth().onAuthStateChanged(function(user) {
-  console.log('state change');
-  if (user) { 
-    // User is signed in.
-    var displayName = user.displayName;
-    var email = user.email;
-    var emailVerified = user.emailVerified;
-    var photoURL = user.photoURL;
-    var isAnonymous = user.isAnonymous;
-    var uid = user.uid;
-    var providerData = user.providerData;
-    console.log('Success!! email '+email);
-    // ...
-  } else {
-    // User is signed out.
-    // ...
-    console.log('User is signed out');
-  }
-});
-*/
-
-})
-/****************************************************************************************/
-$$(document).on('page:init', '.page[data-name="crearCuenta"]', function (e) {
-    console.log(e);
-// declaro estas variables por si el dia de mañana quiero agregar mas avatares
-var filas = 15;
-var fila = 1;
-var avatar = 1;
-//llamada a la carga de avatares dentro del popup dinamicamente
-$$('#avatar').on('click',cargarAvatares);
-//llamada a vaciar el popup de los avatares cuando cierro o selecciono
-$$('#vaciarAv').on('click',vaciarAv);
-//llamada para seleccionar el avatar clickeado pasandole el src del clickeado a avatarSeleccionado()
-$$('#cargaAvatar').on('mouseenter',function(){
-$$('.av').on('click',function(){avatarSeleccionado(this.src);});
-});
-//llamada para crear el usuario almacenandolo en firebase
-$$('#crearUsuario').on('click',crearUsuario);
-
-// cuando abro el popup de los avatares creo las filas y los avatares de manera dinámica
-function cargarAvatares(){
-for (var i = 1; i <= filas; i++){
-$$('#cargaAvatar').append('<div class="row fila'+fila+'">');
-for (var j = 1; j <= 4; j++){
-$$('.fila'+fila).append('<div class="col-25"><img src="img/min/'+avatar+'.png" class="av"></div>');
-avatar++;
-}
-$$('#cargaAvatar').append('</div>'); 
-fila++;
-}
-}
-
-// cuando cierro el popup de los avatares vacío el html
-function vaciarAv(){
-$$('#cargaAvatar').html('<br/>');
-fila = 1;
-avatar = 1;
-};
-
-//paso el src del avatar seleccionado a la vista de crear la cuenta, llamo a cerrar el popup y lo vacio
-function avatarSeleccionado(avatar){
-$$('.avatarSeleccionado').attr('src',avatar).addClass('elegido');
-$$('.subtitulo').addClass('oculto');
-$$('.abrirAvatares').addClass('bordeAv');
-// Tuve que hacer un cambio de fondo porque una imagen png hacia contraste con el background-color
-const cortado = avatar.split('/');
-if(cortado[5] == "39.png"){
-  $$('.abrirAvatares').addClass('fondoBlanco');
-}else{
-  $$('.abrirAvatares').removeClass('fondoBlanco');
-}
-app.popup.close();
-vaciarAv();
-};
-
-// toma los valores de email y contraseña y crea la conexión con firebase para almacenarla
-function crearUsuario(){
-var email = $$('#email').val();
-var password = $$('#password').val();
-
-firebase.auth().createUserWithEmailAndPassword(email, password)
-.catch(function(error) {
-// Handle Errors here.
-var errorCode = error.code;
-var errorMessage = error.message;
-if (errorCode == 'auth/weak-password') {
-alert('Clave muy débil.');
-} else {
-alert(errorMessage);
-}
-console.log(error);
-});
-};
-
+   // console.log(e);
 
 
 })
+
+
+
 /****************************************************************************************/
 $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
-    console.log(e);
+   // console.log(e);
 
-// aunque declaro variables fuera de la funcion el console log solo muestra dentro del scope
-var lat, lon;
-    var onSuccess = function(position) {
-      lat = position.coords.latitude;
-      lon = position.coords.longitude;
-        alert('Latitude: '          + position.coords.latitude          + '\n' +
-              'Longitude: '         + position.coords.longitude         + '\n' +
-              'Altitude: '          + position.coords.altitude          + '\n' +
-              'Accuracy: '          + position.coords.accuracy          + '\n' +
-              'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
-              'Heading: '           + position.coords.heading           + '\n' +
-              'Speed: '             + position.coords.speed             + '\n' +
-              'Timestamp: '         + position.timestamp                + '\n');
-lat = lat.toFixed(2);
-lon = lon.toFixed(2);
-console.log("lat "+lat+" lon "+lon);
-};
-    
- /*codigo de la api de mapas, supongo**/
+/** Voy a mostrar la latitud y longitud actual del usuario hasta que pueda incorporar el mapa**/
+$$('.latitud').append(lat);
+$$('.longitud').append(lon);
+
+
+// Inicio del mapa
+/*
+      lati = -32.95;
+      longi = -60.68;
+console.log(" UBI LAT "+lat+" UBI LON "+lon);
+console.log(" UBI LATI "+lati+" UBI LONGI "+longi);*/
+/*
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/get-started.html
+      // Initialize the platform object:
+      var platform = new H.service.Platform({
+        'apikey': '4_90d8Tk8rlVGD_FGjyc9P2Goqme3ZyHUmSCF30Xui8'
+      });
+
+     
+var defaultLayers = platform.createDefaultLayers();
+
+  var map = new H.Map(
+    document.getElementById('mapContainer'),
+    defaultLayers.vector.normal.map,
+    {
+      zoom: 10,
+      center: { lat: 52.5, lng: 13.4 }
+    });
+*/
+/*
+      // Obtain the default map types from the platform object
+      var maptypes = platform.createDefaultLayers();
+
+      // Instantiate (and display) a map object:
+      var map = new H.Map(
+        document.getElementById('mapContainer'),
+        maptypes.vector.normal.map,
+        {
+          zoom: 13,
+          center: {lat: lati, lng: longi}
+        
+        });
+*/
+
+/*
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/marker-objects.html
+var svgMarkup = '<svg width="24" height="24" ' +
+    'xmlns="http://www.w3.org/2000/svg">' +
+    '<rect stroke="white" fill="#1b468d" x="1" y="1" width="22" ' +
+    'height="22" /><text x="12" y="18" font-size="12pt" ' +
+    'font-family="Arial" font-weight="bold" text-anchor="middle" ' +
+    'fill="white">H</text></svg>';
+var icon = new H.map.Icon(svgMarkup),
+    coords = {lat: lati, lng: longi},
+    marker = new H.map.Marker(coords, {icon: icon});
+
+// Add the marker to the map and center the map at the location of the marker:
+map.addObject(marker);
+map.setCenter(coords); // centrar el mapa en una coordenada.
+
+
+    lati2 = -32.958;
+    longi2 = -60.689;
+    coords2 = {lat: lati2, lng: longi2},
+    marker2 = new H.map.Marker(coords2);
+    map.addObject(marker2);
+
+    if (lat!=0 && lon!=0) {
+        coordsUsu = {lat: lat, lng: lon},
+        markerUsu = new H.map.Marker(coordsUsu);
+        map.addObject(markerUsu);
+    }
+
+
+// GEOCODER ES UN SERVICIO DE REST
+url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
+app.request.json(url, {
+    searchtext: 'Cordoba 3201, rosario, santa fe',
+    apiKey: 'tLErOtbWQ2j43tAD09DGq_01sXxVLKJbtDt7O7qN6AM',
+    gen: '9'
+  }, function (data) {
+     // hacer algo con data
+     console.log("geo:" + data);
+
+
+    // POSICION GEOCODIFICADA de la direccion
+    latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
+    longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
+    //alert(latitud + " / " + longitud);
+        coordsG = {lat: latitud, lng: longitud},
+        markerG = new H.map.Marker(coordsG);
+        map.addObject(markerG);
+    //     alert(JSON.stringify(data));
+    }, function(xhr, status) { console.log("error geo: "+status); }   );
+
+
+*/
 
 })
 
@@ -228,16 +205,12 @@ $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
 $$('#chatGeneral').on('click',function(){tituloChat = "Chat general"; mainView.router.navigate('/chat-general/');});
 $$('#chatCasa').on('click',function(){tituloChat = "Casa"; mainView.router.navigate('/chat-general/'); });
 
-
-
-
 })
 
 /****************************************************************************************/
 $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
 
 $$('#tituloChat').text(tituloChat);
-
 // Init Messages
 var messages = app.messages.create({
   el: '.messages',
@@ -324,7 +297,7 @@ var answers = [
   'Of course',
   'Need to think about it',
   'Amazing!!!'
-]
+]/*
 var people = [
   {
     name: 'Kate Johnson',
@@ -361,8 +334,254 @@ function receiveMessage() {
       responseInProgress = false;
     }, 4000);
   }, 1000);
+}*/
+
+})
+
+/****************************************************************************************/
+$$(document).on('page:init', '.page[data-name="index"]', function (e) {
+  //  console.log(e);
+  // Variable bandera para entrar a crear cuenta
+$$('#nuevaCuenta').on('click',function(){nuevaCuenta = 1; mainView.router.navigate('/inicioSesion/');});
+$$('#iniciarSesion').on('click',function(){nuevaCuenta = 0; mainView.router.navigate('/inicioSesion/');});
+
+})
+
+/****************************************************************************************/
+$$(document).on('page:init', '.page[data-name="inicioSesion"]', function (e) {
+  //  console.log(e);
+
+// Voy a usar esta misma vista para crear la cuenta con el servicio de autenticacion tambien
+// sign in con firebase auth
+if (nuevaCuenta == 1) {
+  if($$('#colorEncabezado').hasClass('azul')){
+$$('#colorEncabezado').removeClass('azul').addClass('rojo');
+$$('#tituloLogin').text('Crear cuenta');
+$$('#olvideContrasena').addClass('oculto');
+}
+
+$$('#ingresar').on('click',function(){
+email = $$('#emailLogin').val();
+password = $$('#passwordLogin').val();
+crearUsuario();
+});
+
+// toma los valores de email y contraseña y crea la conexión con firebase para almacenarla
+function crearUsuario(){
+
+firebase.auth().createUserWithEmailAndPassword(email, password)
+.catch(function(error) {
+// Handle Errors here.
+var errorCode = error.code;
+var errorMessage = error.message;
+if (errorCode == 'auth/weak-password') {
+alert('Clave muy débil.');
+} else {
+alert(errorMessage);
+}
+console.log(errorMessage);
+});
+
+mainView.router.navigate('/crearCuenta/');
+};
+/****************************************************************************************/
+}else{
+  if($$('#colorEncabezado').hasClass('rojo')){
+$$('#colorEncabezado').removeClass('rojo').addClass('azul');
+$$('#tituloLogin').text('Iniciar sesión');
+$$('#olvideContrasena').removeClass('oculto');
+}
+// log in con firebase auth
+$$('#ingresar').on('click',function(){
+email = $$('#emailLogin').val();
+password = $$('#passwordLogin').val();
+// Estoy puenteando el login para trabajar más comodo con las vistas
+ //email = "programacion21@live.com";
+ //password = "kat13579";
+
+//Se declara la variable huboError (bandera)
+  var huboError = 0;
+firebase.auth().signInWithEmailAndPassword(email, password)
+  .catch(function(error) {
+//Si hubo algun error, ponemos un valor referenciable en la variable huboError
+            huboError = 1;
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.error(errorMessage);
+            console.log(errorCode);
+})
+  .then(function(){   
+//En caso de que esté correcto el inicio de sesión y no haya errores, se dirige a la siguiente página
+            if(huboError == 0){
+                mainView.router.navigate('/chats/');
+            }
+        }); 
+    });
+}
+})
+
+/****************************************************************************************/
+$$(document).on('page:init', '.page[data-name="crearCuenta"]', function (e) {
+    console.log(e);
+// declaro estas variables por si el dia de mañana quiero agregar mas avatares
+var filas = 15;
+var fila = 1;
+var avatarN = 1;
+//llamada para crear el usuario almacenandolo en firebase y redireccionar a ubicacion
+$$('#crearUsuario').on('click',function(){fnGuardarDP(); mainView.router.navigate('/ubicacion/');});
+//llamada a la carga de avatares dentro del popup dinamicamente
+$$('#modalAvatares').on('click',cargarAvatares);
+//llamada a vaciar el popup de los avatares cuando cierro o selecciono
+$$('#vaciarAv').on('click',vaciarAv);
+//llamada para seleccionar el avatar clickeado pasandole el src del clickeado a avatarSeleccionado()
+/*$$('#cargaAvatar').on('mouseenter',function(){
+$$('.av').on('click',function(){avatarSeleccionado(this.src);});
+});*/
+
+// cuando abro el popup de los avatares creo las filas y los avatares de manera dinámica
+function cargarAvatares(){
+  console.log("CARGAR AVATARES");
+for (var i = 1; i <= filas; i++){
+$$('#cargaAvatar').append('<div class="row fila'+fila+'">');
+for (var j = 1; j <= 4; j++){
+$$('.fila'+fila).append('<div class="col-25"><img src="img/min/'+avatarN+'.png" class="av"></div>');
+console.log("AV:"+avatarN);
+avatarN++;
+}
+$$('#cargaAvatar').append('</div>'); 
+fila++;
+}
+};
+
+// cuando cierro el popup de los avatares vacío el html
+function vaciarAv(){
+$$('#cargaAvatar').html('<br/>');
+fila = 1;
+avatarN = 1;
+};
+
+//paso el src del avatar seleccionado a la vista de crear la cuenta, llamo a cerrar el popup y lo vacio
+function avatarSeleccionado(avatar){
+$$('.avatarSeleccionado').attr('src',avatar).addClass('elegido');
+$$('.subtitulo').addClass('oculto');
+$$('.abrirAvatares').addClass('bordeAv');
+// Tuve que hacer un cambio de fondo porque una imagen png hacia contraste con el background-color
+sinRuta = avatar.split('/');
+if(sinRuta[5] == "39.png"){
+  $$('.abrirAvatares').addClass('fondoBlanco');
+}else{
+  $$('.abrirAvatares').removeClass('fondoBlanco');
+}
+app.popup.close();
+vaciarAv();
+};
+
+})
+
+/*************************FUNCIONES QUE TOME PRESTADAS DE JORGE**********************/
+function fnGuardarDP(){
+nombre = $$('#nombre').val();
+telefono = $$('#telefono').val();
+usuario = $$('#usuario').val();
+  // clave: variable de datos
+
+  var data = {
+    nombre: nombre,
+    telefono: telefono,
+    usuario: usuario,
+    avatar: sinRuta,
+    latitud: lat,
+    longitud: lon,
+    tipo: "VIS"   
+  }
+
+ //firebase.firestore().collection("USUARIOS").doc('no@anda').set(data);
+
+
+    refUsuarios.doc(email).set(data);
+
+
+console.log("GUARDAR DP:::: EMAILL: "+email+" LAT "+lat+" LON "+lon+ "nombre "+nombre+" telefono "+telefono+" usuario "+usuario+ " avatar "+sinRuta);
+  
 }
 
 
+
+
+
+function fnIniciarDatos() {
+
+    codido = "VIS"; tipo = "Visitante"; saludo = "Hola visitante!";
+    var data = {
+      tipo: tipo, saludo: saludo
+    }
+    refTiposUsuarios.doc(codido).set(data);
+
+    codido = "ADM"; tipo = "Administrador"; saludo = "Hola Mr. Admin";
+    var data = {
+      tipo: tipo, saludo: saludo
+    }
+    refTiposUsuarios.doc(codido).set(data);
+
+    codido = "COM"; tipo = "Comercio"; saludo = "Hola comercio";
+    var data = {
+      tipo: tipo, saludo: saludo
+    }
+    refTiposUsuarios.doc(codido).set(data);
+
+    var data = {
+      nombre: "Admin",
+      telefono: "1234",
+      usuario: "lucasD",
+      avatar: "/img/1.png",
+      latitud: "00.00",
+      longitud: "00.00",
+      tipo: "ADM"
+    }
+    refUsuarios.doc("programacion21@live.com").set(data);
+
+
+} 
+
+/********************************************************************************/
+
+
+
+ /*codigo de la api de mapas*/
+function mapApi(la,lo){
+lat = la;
+lon = lo;
+
+  console.log("latitud: "+la);
+  console.log("longitud: "+lo);
+
+
+// Por el momento voy a guardar en la base de datos la latitud y longitud
+
+/*
+/// NO me deja setearlo igual que abajo asi que lo hago con un update
+ var data = {
+    latitud: lat,
+    longitud: lon
+  }
+
+//  refUsuarios.doc(email).set(data);
+ refUsuarios.doc(email).set(data);
+*/
+
+// Tampoco anda..
+refUsuarios.doc(email).update
+({ latitud: lat, longitud: lon })
+.then(function() {
+console.log("actualizado ok");
 })
+.catch(function(error) {
+console.log("Error: " + error);
+});
+
+
+
+
+};
+
 

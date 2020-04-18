@@ -352,14 +352,11 @@ padding-left: 1em;
 .opcionMenu{
 background-color: #ccc;
 padding: 0.6em;
-
-}
-.opcionMenu a{
 color: #000;
 font-weight: bold;
 font-size: 1.2em;
-padding-left: 1.3em;
 }
+
 
 .icono{
 	height: 1.7em;
@@ -376,7 +373,7 @@ background-color: #bbb;
 }
 
 .sinCambio{
-	color: inherit;
+	color: inherit;	
 }
 
 .cajaTexto{
@@ -427,6 +424,10 @@ font-size: 1em;
 font-weight: bold;
 color:#000;
 text-align: left;
+}
+
+.chatList{
+padding: 0px;
 }
 
 
