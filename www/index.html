@@ -1,241 +1,149 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <!--
-        Customize this policy to fit your own app's needs. For more guidance, see:
-            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
-        Some notes:
-            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-                * Enable inline JS: add 'unsafe-inline' to default-src
-        -->
-
-<!--CSP con permisos para varias cosas - creo que hay que cambiarlo cuando se compile-->
-<!--meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs "-->
-    <!-- Required meta tags-->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Color theme for statusbar -->
-    <meta name="theme-color" content="#2196f3">
-    <!-- Your app title -->
-    <title>Radio Alerta</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
-    <!-- Path to Framework7 Library CSS -->
-    <link rel="stylesheet" href="lib/framework7/css/framework7.bundle.css">
-    <!-- Path to icons -->
-    <link rel="stylesheet" href="css/icons.css">
-    <!-- Path to your custom app styles-->
-    <link rel="stylesheet" href="css/app.css">
-
-   
+  <!--     Customize this policy to fit your own app's needs. For more guidance, see:
+https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+Some notes:
+* gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+* https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+* Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+* Enable inline JS: add 'unsafe-inline' to default-src -->
+  <!--CSP con permisos para varias cosas - creo que hay que cambiarlo cuando se compile-->
+  <!--meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs "-->
+  <!-- Required meta tags-->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#2196f3">
+  <!-- Your app title -->
+  <title>Radio Alerta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
+  <!-- Path to Framework7 Library CSS -->
+  <link rel="stylesheet" href="lib/framework7/css/framework7.bundle.css">
+  <!-- Path to icons -->
+  <link rel="stylesheet" href="css/icons.css">
+  <!-- Path to your custom app styles-->
+  <link rel="stylesheet" href="css/app.css">
 </head>
 
 <body>
-    <div id="app">
-        <!-- Statusbar overlay -->
-        <div class="statusbar"></div>
-    
-        <!-- Your main view, should have "view-main" class -->
-        <div class="view view-main">
-            <!-- Initial Page, "data-name" contains page name -->
-            <div data-name="index" class="page">
-
-                <!-- Scrollable page content -->
-                <div class="page-content text-align-center celeste">
-                    <img src="img/logo.png" class="logo-main">
-                    <div class="block no-hairlines sobreTitulo">
-                    <h1>RADIO <br/> ALERTA</h1>
-
-                    <!-- GRUPO DE BOTONES CON EVENTOS  -->
-                        <div class="block no-hairlines logButtons">
-                          <div class="row">
-                            <a href="#" id="iniciarSesion"><button class="row button button-large button-fill azul centrado inicio"><img src="img/log_img.png" class="person">Iniciar sesi&oacute;n</button></a>
-                            <a href="#" id="nuevaCuenta"><button class="row button button-large button-fill rojo centrado inicio"><img src="img/sign_img.png" class="person">Crear cuenta</button></a>
-                          </div>
-                        </div>
-
-</div>
-
-                    <!-- AYUDA -->
-                      <div class="popup my-popup">
-                        <div class="view">
-                          <div class="page">
-                            <div class="navbar">
-                              <div class="navbar-bg"></div>
-                              <div class="navbar-inner">
-                                <div class="title">AYUDA</div>
-                                <div class="right">
-                                  <!-- Link to close popup -->
-                                  <a class="link popup-close">Cerrar</a>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="page-content">
-                              Texto de ayuda para visitantes y usuarios
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    <!-- RECUPERAR CONTRASEÑA -->
-                      <div class="popup recuperar">
-                        <div class="view">
-                          <div class="page">
-                            <div class="navbar">
-                              <div class="navbar-bg"></div>
-                              <div class="navbar-inner">
-                                <div class="title">Recuperar contraseña</div>
-                                <div class="right">
-                                  <!-- Link to close popup -->
-                                  <a class="link popup-close">Cerrar</a>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="page-content">
-
-                            Formulario para recuperar contraseña
-
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    <!-- TÉRMINOS Y CONDICIONES -->
-                      <div class="popup terminos">
-                        <div class="view">
-                          <div class="page">
-                            <div class="navbar">
-                              <div class="navbar-bg"></div>
-                              <div class="navbar-inner">
-                                <div class="title">Términos y condiciones</div>
-                                <div class="right">
-                                  <!-- Link to close popup -->
-                                  <a class="link popup-close">Cerrar</a>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="page-content">
-                            Terminos y condiciones ...
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    <!-- AVATARES -->
-
-                      <div class="popup popupAvatares">
-                        <div class="view">
-                          <div class="page">
-                            <div class="navbar">
-                            <div class="navbar-bg"></div>
-                              <div class="navbar-inner">
-                              <div class="title">Seleccionar avatar</div>
-                                <div class="right">
-                                <!-- Link to close popup -->
-                                <a class="link popup-close" id="vaciarAv">Cerrar</a>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="page-content">
-                            <div id="cargaAvatar">
-                              Acá irian los avatares si se abriera bien el popup
-                            </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-
-                    </div>
-
-
-         <!-- Bottom Toolbar -->
-          <div class="toolbar toolbar-bottom no-hairline transparente">
-            <div class="toolbar-inner">
-<p class="ayudaCentrado"><a href="#" data-popup=".my-popup" class="popup-open ayuda">Ayuda</a></p>
+  <div id="app">
+    <!-- Statusbar overlay -->
+    <div class="statusbar"></div>
+    <!-- Your main view, should have "view-main" class -->
+    <div class="view view-main">
+      <!-- Initial Page, "data-name" contains page name -->
+      <div data-name="index" class="page">
+        <!-- Scrollable page content -->
+        <div class="page-content text-align-center celeste">
+          <img src="img/logo.png" class="logo-main">
+          <div class="block no-hairlines sobreTitulo">
+            <h1>RADIO <br/> ALERTA</h1>
+            <!-- GRUPO DE BOTONES CON EVENTOS  -->
+            <div class="block no-hairlines logButtons">
+              <div class="row">
+                <a href="#" id="iniciarSesion">
+                  <button class="row button button-large button-fill azul centrado inicio">
+                    <img src="img/log_img.png" class="person">Iniciar sesi&oacute;n</button>
+                </a>
+                <a href="#" id="nuevaCuenta">
+                  <button class="row button button-large button-fill rojo centrado inicio">
+                    <img src="img/sign_img.png" class="person">Crear cuenta</button>
+                </a>
+              </div>
             </div>
           </div>
-
+          <!-- AYUDA -->
+          <div class="popup my-popup">
+            <div class="view">
+              <div class="page">
+                <div class="navbar">
+                  <div class="navbar-bg"></div>
+                  <div class="navbar-inner">
+                    <div class="title">AYUDA</div>
+                    <div class="right">
+                      <!-- Link to close popup --> <a class="link popup-close">Cerrar</a>
+                    </div>
+                  </div>
                 </div>
+                <div class="page-content">Texto de ayuda para visitantes y usuarios</div>
+              </div>
             </div>
-
-
-        <!-- MENU USUARIOS -->
-        <div class="panel panel-left panel-reveal panel-resizable panel-init">
-        <div class="menuLateral">
-        <div class="menuPerfil azul row no-gap">
-        <div class="col-35">
-        <img src="img/min/1.png" class="av menuAvatar">
+          </div>
+          <!-- RECUPERAR CONTRASEÑA -->
+          <div class="popup recuperar">
+            <div class="view">
+              <div class="page">
+                <div class="navbar">
+                  <div class="navbar-bg"></div>
+                  <div class="navbar-inner">
+                    <div class="title">Recuperar contraseña</div>
+                    <div class="right">
+                      <!-- Link to close popup --> <a class="link popup-close">Cerrar</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="page-content">Formulario para recuperar contraseña</div>
+              </div>
+            </div>
+          </div>
+          <!-- TÉRMINOS Y CONDICIONES -->
+          <div class="popup terminos">
+            <div class="view">
+              <div class="page">
+                <div class="navbar">
+                  <div class="navbar-bg"></div>
+                  <div class="navbar-inner">
+                    <div class="title">Términos y condiciones</div>
+                    <div class="right">
+                      <!-- Link to close popup --> <a class="link popup-close">Cerrar</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="page-content">Terminos y condiciones ...</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-65">
-        <p class="miPerfil">MI PERFIL</p>
-        <p class="nombreMenu">@LucasD</p>
+        <!-- Bottom Toolbar -->
+        <div class="toolbar toolbar-bottom no-hairline transparente">
+          <div class="toolbar-inner">
+            <p class="ayudaCentrado"><a href="#" data-popup=".my-popup" class="popup-open ayuda">Ayuda</a>
+            </p>
+          </div>
         </div>
-        </div>
-        <ul>
-        <a href="/chats/" class="  panel-close"><li class="opcionMenu">
-        Ubicaciones<img src="img/ico-ubicacion.png" class="icono">
-        </li></a>
-
-        <a href="#" class="  panel-close"><li class="opcionMenu b">
-        Grupos<img src="img/ico-grupos.png" class="icono ico-grupo">
-        </li></a> 
-
-        <a href="#" class="  panel-close"><li class="opcionMenu">
-        Favoritos<img src="img/ico-fav.png" class="icono">
-        </li></a>
-
-        <a href="#" class="  panel-close">
-          <li class="opcionMenu b">Bloqueos<img src="img/ico-bloq.png" class="icono"></li>
-        </a>
-
-        <a href="#" class="  panel-close">
-          <li class="opcionMenu">Vincular<img src="img/ico-vincular.png" class="icono"></li>
-        </a>
-
-        <a href="#" class="  panel-close">
-          <li class="opcionMenu b">Configuración<img src="img/config.png" class="icono"></li>
-        </a>
-
-        <a href="#" class="  panel-close"><li class="opcionMenu">
-        Ayuda
-        </li></a>
-
-        </ul>
-        </div>
-        </div>
-
-
-</div>
-<script type="text/javascript" src="cordova.js"></script>
-<script type="text/javascript" src="lib/framework7/js/framework7.bundle.min.js"></script>
-<script type="text/javascript" src="js/my-app.js"></script>
-<!-- The core Firebase JS SDK is always required and must be listed first -->
-<!--script src="https://www.gstatic.com/firebasejs/7.13.2/firebase-app.js"></script-->
-<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
-<!-- TODO: Add SDKs for Firebase products that you want to use 
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="lib/framework7/js/framework7.bundle.min.js"></script>
+  <script type="text/javascript" src="js/my-app.js"></script>
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <!--script src="https://www.gstatic.com/firebasejs/7.13.2/firebase-app.js"></script-->
+  <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+  <!-- TODO: Add SDKs for Firebase products that you want to use 
   https://firebase.google.com/docs/web/setup#available-libraries -->
-<script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
-<script>
-  // Your web app's Firebase configuration
-  var firebaseConfig = {
-    apiKey: "AIzaSyDEf86PdpAp1Ql2W-3fGr6v1spNIFFI7-M",
-    authDomain: "radioalerta-537e6.firebaseapp.com",
-    databaseURL: "https://radioalerta-537e6.firebaseio.com",
-    projectId: "radioalerta-537e6",
-    storageBucket: "radioalerta-537e6.appspot.com",
-    messagingSenderId: "131666164662",
-    appId: "1:131666164662:web:3f25001d9f935faf335f17"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-</script>
-<!--script src="https://js.api.here.com/v3/3.1/mapsjs-core.js" type="text/javascript" charset="utf-8"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyDEf86PdpAp1Ql2W-3fGr6v1spNIFFI7-M",
+        authDomain: "radioalerta-537e6.firebaseapp.com",
+        databaseURL: "https://radioalerta-537e6.firebaseio.com",
+        projectId: "radioalerta-537e6",
+        storageBucket: "radioalerta-537e6.appspot.com",
+        messagingSenderId: "131666164662",
+        appId: "1:131666164662:web:3f25001d9f935faf335f17"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+  </script>
+  <!--script src="https://js.api.here.com/v3/3.1/mapsjs-core.js" type="text/javascript" charset="utf-8"></script>
 <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js" type="text/javascript" charset="utf-8"></script>
 <script src="js/tangram.min.js" type="text/javascript" charset="utf-8"></script-->
 </body>
+
 </html>

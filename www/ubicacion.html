@@ -1,26 +1,22 @@
 <!-- We don't need a full layout in this file because this page will be parsed with Ajax.  -->
 <div class="page" data-name="ubicacion">
-    <div class="navbar">
-        <div class="navbar-inner sliding banda rojo">
-        <div class="left">
-            <a href="#" class="link back">
-            <i class="icon icon-back blanco"></i>
-            <span class="ios-only blanco">Volver</span>
-            </a>
-        </div>
-        <div class="title">Ubicación</div>
-        <img src="img/logo.png" class="logoEncabezado">
-        </div>
+  <div class="navbar">
+    <div class="navbar-inner sliding banda rojo">
+      <div class="left">
+        <a href="#" class="link back"> <i class="icon icon-back blanco"></i>
+          <span class="ios-only blanco">Volver</span>
+        </a>
+      </div>
+      <div class="title">Ubicación</div>
+      <img src="img/logo.png" class="logoEncabezado">
     </div>
-    <div class="page-content fondo-degrade">
-<br/><br/>
-
-<!------------Falta el selector de ubicación con mapa ((API))---------->
+  </div>
+  <div class="page-content fondo-degrade">
+    <br/>
+    <br/>
+    <!------------Falta el selector de ubicación con mapa ((API))---------->
     <!--div style="width: 100vw; height: 480px" id="mapContainer"></div-->
-    
-
-
-<!--div class="list no-hairlines-md">
+    <!--div class="list no-hairlines-md">
   <ul>
     <li class="item-content item-input item-input-outline">
       <div class="item-inner">
@@ -33,18 +29,18 @@
     </li>
   </ul>
 </div-->
-<h2>Tu ubicación:</h2>
-<div class="latitud">Latitud: </div>
-<div class="longitud">Longitud: </div>
-
-
-<a href="/inicioSesion/"><button class="row button button-large button-fill azul centrado derecha">Listo!</button></a>
+    <h2>Tu ubicación:</h2>
+    <div class="latitud">Latitud:</div>
+    <div class="longitud">Longitud:</div>
+    <a href="#" id="ubicacionAceptada">
+      <button class="row button button-large button-fill azul centrado derecha">Listo!</button>
+    </a>
+  </div>
+  <!-- Bottom Toolbar -->
+  <div class="toolbar toolbar-bottom no-hairline transparente">
+    <div class="toolbar-inner">
+      <p class="ayudaCentrado"><a href="#" data-popup=".my-popup" class="popup-open ayuda interno">Ayuda</a>
+      </p>
     </div>
-         <!-- Bottom Toolbar -->
-          <div class="toolbar toolbar-bottom no-hairline transparente">
-            <div class="toolbar-inner">
-<p class="ayudaCentrado"><a href="#" data-popup=".my-popup" class="popup-open ayuda interno">Ayuda</a></p>
-            </div>
-          </div>
-    
+  </div>
 </div>
