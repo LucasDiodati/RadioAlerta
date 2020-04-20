@@ -18,6 +18,9 @@ var app = new Framework7({
   }, {
     path: '/inicioSesion/',
     url: 'inicio-sesion.html',
+}, {
+    path: '/mapa/',
+    url: 'mapa.html',
   }, {
     path: '/crearCuenta/',
     url: 'nueva-cuenta.html',
@@ -35,6 +38,10 @@ var app = new Framework7({
 var mainView = app.views.create('.view-main');
 var email, password, tituloChat, nombre, telefono, usuario, avatar, tipo, lat, lon, sinRuta;
 var nuevaCuenta = 0;
+
+var latUsuario=0, lonUsuario=0;
+
+
 /* BASE DE DATOS */
 var db, refUsuarios, refTiposUsuarios;
 // Handle Cordova Device Ready Event
@@ -76,6 +83,83 @@ $$(document).on('page:init', function (e) {
   console.log(e);
 })
 /****************************************************************************************/
+
+$$(document).on('page:init', '.page[data-name="mapa"]', function (e) {
+    // Inicio del mapa
+
+    var  lati = -32.95;
+    var  longi = -60.68;
+
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/get-started.html
+      // Initialize the platform object:
+      var platform = new H.service.Platform({
+        'apikey': '0RTLydGJnLLp5DlfAFU0ctJ3CUbIiBHqs4K-qMAxFlY'
+      });
+
+      // Obtain the default map types from the platform object
+      var maptypes = platform.createDefaultLayers();
+
+      // Instantiate (and display) a map object:
+      var map = new H.Map(
+        document.getElementById('mapContainer'),
+        maptypes.vector.normal.map,
+        {
+          zoom: 13,
+          center: {lat: lati, lng: longi}
+        
+        });
+
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/marker-objects.html
+var svgMarkup = '<svg width="24" height="24" ' +
+    'xmlns="http://www.w3.org/2000/svg">' +
+    '<rect stroke="white" fill="#1b468d" x="1" y="1" width="22" ' +
+    'height="22" /><text x="12" y="18" font-size="12pt" ' +
+    'font-family="Arial" font-weight="bold" text-anchor="middle" ' +
+    'fill="white">H</text></svg>';
+var icon = new H.map.Icon(svgMarkup),
+    coords = {lat: lati, lng: longi},
+    marker = new H.map.Marker(coords, {icon: icon});
+
+// Add the marker to the map and center the map at the location of the marker:
+map.addObject(marker);
+map.setCenter(coords); // centrar el mapa en una coordenada.
+
+
+    lati2 = -32.958;
+    longi2 = -60.689;
+    coords2 = {lat: lati2, lng: longi2},
+    marker2 = new H.map.Marker(coords2);
+    map.addObject(marker2);
+
+    if (latUsuario!=0 && lonUsuario!=0) {
+        coordsUsu = {lat: latUsuario, lng: lonUsuario},
+        markerUsu = new H.map.Marker(coordsUsu);
+        map.addObject(markerUsu);
+    }
+
+// GEOCODER ES UN SERVICIO DE REST
+url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
+app.request.json(url, {
+    searchtext: 'Cordoba 3201, rosario, santa fe',
+    apiKey: 'Gz-JLm7EYGkMQZ2XuuU8feRF-CQYjqVUDFqtICVtQwU',
+    gen: '9'
+  }, function (data) {
+     // hacer algo con data
+     console.log("geo:" + data);
+
+
+    // POSICION GEOCODIFICADA de la direccion
+    latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
+    longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
+    //alert(latitud + " / " + longitud);
+        coordsG = {lat: latitud, lng: longitud},
+        markerG = new H.map.Marker(coordsG);
+        map.addObject(markerG);
+    //     alert(JSON.stringify(data));
+    }, function(xhr, status) { console.log("error geo: "+status); }   );
+
+})
+/****************************************************************************************/
 $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
   console.log(e);
   /** Voy a mostrar la latitud y longitud actual del usuario hasta que pueda incorporar el mapa**/
@@ -86,7 +170,24 @@ $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
     cargarDatosUsuario();
     mainView.router.navigate('/chats/');
   });
-  // Inicio del mapa
+
+
+// Obtain the default map types from the platform object:
+var defaultLayers = platform.createDefaultLayers();
+
+// Instantiate (and display) a map object:
+var map = new H.Map(
+    document.getElementById('mapContainer'),
+    defaultLayers.vector.normal.map,
+    {
+      zoom: 10,
+      center: { lat: 52.5, lng: 13.4 }
+    });
+
+
+
+
+    // Inicio del mapa
   /*
       lati = -32.95;
       longi = -60.68;
