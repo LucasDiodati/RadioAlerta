@@ -180,47 +180,17 @@ $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
     mainView.router.navigate('/chats/');
   });
 
+  // Inicio del mapa
 
-// Obtain the default map types from the platform object:
-var defaultLayers = platform.createDefaultLayers();
+    var  lati = -32.95;
+    var  longi = -60.68;
 
-// Instantiate (and display) a map object:
-var map = new H.Map(
-    document.getElementById('mapContainer'),
-    defaultLayers.vector.normal.map,
-    {
-      zoom: 10,
-      center: { lat: 52.5, lng: 13.4 }
-    });
-
-
-
-
-    // Inicio del mapa
-  /*
-      lati = -32.95;
-      longi = -60.68;
-console.log(" UBI LAT "+lat+" UBI LON "+lon);
-console.log(" UBI LATI "+lati+" UBI LONGI "+longi);*/
-  /*
 // https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/get-started.html
       // Initialize the platform object:
       var platform = new H.service.Platform({
-        'apikey': '4_90d8Tk8rlVGD_FGjyc9P2Goqme3ZyHUmSCF30Xui8'
+        'apikey': '0RTLydGJnLLp5DlfAFU0ctJ3CUbIiBHqs4K-qMAxFlY'
       });
 
-     
-var defaultLayers = platform.createDefaultLayers();
-
-  var map = new H.Map(
-    document.getElementById('mapContainer'),
-    defaultLayers.vector.normal.map,
-    {
-      zoom: 10,
-      center: { lat: 52.5, lng: 13.4 }
-    });
-*/
-  /*
       // Obtain the default map types from the platform object
       var maptypes = platform.createDefaultLayers();
 
@@ -233,8 +203,7 @@ var defaultLayers = platform.createDefaultLayers();
           center: {lat: lati, lng: longi}
         
         });
-*/
-  /*
+
 // https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/marker-objects.html
 var svgMarkup = '<svg width="24" height="24" ' +
     'xmlns="http://www.w3.org/2000/svg">' +
@@ -257,22 +226,21 @@ map.setCenter(coords); // centrar el mapa en una coordenada.
     marker2 = new H.map.Marker(coords2);
     map.addObject(marker2);
 
-    if (lat!=0 && lon!=0) {
-        coordsUsu = {lat: lat, lng: lon},
+    if (latUsuario!=0 && lonUsuario!=0) {
+        coordsUsu = {lat: latUsuario, lng: lonUsuario},
         markerUsu = new H.map.Marker(coordsUsu);
         map.addObject(markerUsu);
     }
-
 
 // GEOCODER ES UN SERVICIO DE REST
 url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
 app.request.json(url, {
     searchtext: 'Cordoba 3201, rosario, santa fe',
-    apiKey: 'tLErOtbWQ2j43tAD09DGq_01sXxVLKJbtDt7O7qN6AM',
+    apiKey: 'Gz-JLm7EYGkMQZ2XuuU8feRF-CQYjqVUDFqtICVtQwU',
     gen: '9'
   }, function (data) {
      // hacer algo con data
-     console.log("geo:" + data);
+     console.log("geo:" + JSON.stringify(data));
 
 
     // POSICION GEOCODIFICADA de la direccion
@@ -286,7 +254,7 @@ app.request.json(url, {
     }, function(xhr, status) { console.log("error geo: "+status); }   );
 
 
-*/
+
 })
 /****************************************************************************************/
 $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
