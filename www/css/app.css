@@ -89,6 +89,7 @@ font-weight: normal;
 .logo-main{
 	padding-top: 3.5em;
 	width: 15em;
+	max-height: 60vh;
 }
 
 .sobreTitulo{

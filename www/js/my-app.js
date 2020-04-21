@@ -10,6 +10,9 @@ var app = new Framework7({
   // Enable swipe panel
   panel: {
     swipe: 'left',
+    swipe:'true',
+    swipeOnlyClose:'true',
+    closeByBackdropClick: 'true',
   },
   // *****************RUTAS*********************
   routes: [{
@@ -30,6 +33,12 @@ var app = new Framework7({
   }, {
     path: '/chats/',
     url: 'chats.html',
+  }, {
+    path: '/p-us/',
+    url: 'pefil-usuario.html',
+  }, {
+    path: '/p-adm/',
+    url: 'perfil-admin.html',
   }, {
     path: '/chat-general/',
     url: 'chat-general.html',
@@ -145,7 +154,7 @@ app.request.json(url, {
     gen: '9'
   }, function (data) {
      // hacer algo con data
-     console.log("geo:" + data);
+     console.log("geo:" + JSON.stringify(data));
 
 
     // POSICION GEOCODIFICADA de la direccion
@@ -646,7 +655,7 @@ function cerrarSesion() {
     email = "", password = "", tituloChat = "", nombre = "", telefono = "", usuario = "", avatar = "", tipo = "", lat = "", lon = "", sinRuta = "";
     //voy al index
     mainView.router.navigate('/index/');
-    app.panel.close().destroy();
+    app.panel.close();
     //me tira error de consola el destroy() pero es la secuencia que funciona al parecer
   }).catch(function (error) {
     // An error happened.
