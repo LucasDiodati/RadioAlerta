@@ -1,25 +1,61 @@
 <!-- We don't need a full layout in this file because this page will be parsed with Ajax.  -->
 <div class="page" data-name="mapa">
-    <div class="navbar">
-        <div class="navbar-inner sliding">
-        <div class="left">
-            <a href="#" class="link back">
-            <i class="icon icon-back"></i>
-            <span class="ios-only">Back</span>
-            </a>
-        </div>
-        <div class="title">MAPA</div>
-        </div>
+
+  <div class="navbar">
+    <div class="navbar-inner sliding rojo">
+      <div class="left">
+        <a href="#" class="link back">
+          <i class="icon icon-back blanco"></i>
+          <span class="ios-only blanco">Volver</span>
+        </a>
+      </div>
+
+
+      <div class="title blanco">Ubicación</div>
+      <img src="img/logo.png" class="logoEncabezado logoUbicacion">
+
+      
     </div>
-    <div class="page-content">
-        <div class="block-title">SERE UN MAPA</div>
-        <div class="block block-strong">
-        
-        
+  </div>
 
-            <div style="width: 100vw; height: 70vh" id="mapContainer"></div>
-
-
-        </div>
+  <!-- Bottom Toolbar -->
+  <div class="toolbar toolbar-bottom no-hairline transparente">
+    <div class="toolbar-inner">
+      <p class="ayudaCentrado">
+        <a href="#" data-popup=".my-popup" class="popup-open ayuda interno">Ayuda</a>
+      </p>
     </div>
+  </div>
+  <div class="page-content fondo-degrade">
+
+    <!------------ el selector de ubicación con mapa ((API))---------->
+    
+        <div>
+            <div id="mapContainer"></div>
+        </div>
+    
+<div class="list no-hairlines-md cajaUbicacion">
+<ul>
+    <li class="item-content item-input item-input-outline">
+      <div class="item-inner">
+        <div class="item-title item-floating-label celeste solido">Ingresar ubicación</div>
+        <div class="item-input-wrap celeste">
+          <input type="text" placeholder="Escribe una dirección" id="busquedaUbicacion">
+          <span class="input-clear-button solido"></span>
+        </div>
+      </div>
+    </li>
+</ul>
+</div>
+
+
+<div class="botonListo">
+    <a href="#" id="ubicacionAceptada">
+      <button class="row button button-large button-fill azul centrado derecha">Listo!</button>
+    </a>
+</div>
+  </div>
+
+
+
 </div>

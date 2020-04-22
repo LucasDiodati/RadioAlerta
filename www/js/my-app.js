@@ -73,9 +73,9 @@ $$(document).on('deviceready', function () {
     navigator.geolocation.getCurrentPosition(onSuccess, onError);
   } else {
     // Web page
-    lat = "00.0";
-    lon = "00.0";
-    console.log("LAT COMPUTADORA: " + lat + " LON COMPUTADORA: " + lon);
+    lat = "-32.9956997";
+    lon = "-60.6508673";
+   console.log("LAT COMPUTADORA: " + lat + " LON COMPUTADORA: " + lon);
   }
   /* seteo variables de BD */
   db = firebase.firestore();
@@ -94,78 +94,9 @@ $$(document).on('page:init', function (e) {
 /****************************************************************************************/
 
 $$(document).on('page:init', '.page[data-name="mapa"]', function (e) {
-    // Inicio del mapa
 
-    var  lati = -32.95;
-    var  longi = -60.68;
+   mapaConUI();
 
-// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/get-started.html
-      // Initialize the platform object:
-      var platform = new H.service.Platform({
-        'apikey': '0RTLydGJnLLp5DlfAFU0ctJ3CUbIiBHqs4K-qMAxFlY'
-      });
-
-      // Obtain the default map types from the platform object
-      var maptypes = platform.createDefaultLayers();
-
-      // Instantiate (and display) a map object:
-      var map = new H.Map(
-        document.getElementById('mapContainer'),
-        maptypes.vector.normal.map,
-        {
-          zoom: 13,
-          center: {lat: lati, lng: longi}
-        
-        });
-
-// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/marker-objects.html
-var svgMarkup = '<svg width="24" height="24" ' +
-    'xmlns="http://www.w3.org/2000/svg">' +
-    '<rect stroke="white" fill="#1b468d" x="1" y="1" width="22" ' +
-    'height="22" /><text x="12" y="18" font-size="12pt" ' +
-    'font-family="Arial" font-weight="bold" text-anchor="middle" ' +
-    'fill="white">H</text></svg>';
-var icon = new H.map.Icon(svgMarkup),
-    coords = {lat: lati, lng: longi},
-    marker = new H.map.Marker(coords, {icon: icon});
-
-// Add the marker to the map and center the map at the location of the marker:
-map.addObject(marker);
-map.setCenter(coords); // centrar el mapa en una coordenada.
-
-
-    lati2 = -32.958;
-    longi2 = -60.689;
-    coords2 = {lat: lati2, lng: longi2},
-    marker2 = new H.map.Marker(coords2);
-    map.addObject(marker2);
-
-    if (latUsuario!=0 && lonUsuario!=0) {
-        coordsUsu = {lat: latUsuario, lng: lonUsuario},
-        markerUsu = new H.map.Marker(coordsUsu);
-        map.addObject(markerUsu);
-    }
-
-// GEOCODER ES UN SERVICIO DE REST
-url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
-app.request.json(url, {
-    searchtext: 'Cordoba 3201, rosario, santa fe',
-    apiKey: 'Gz-JLm7EYGkMQZ2XuuU8feRF-CQYjqVUDFqtICVtQwU',
-    gen: '9'
-  }, function (data) {
-     // hacer algo con data
-     console.log("geo:" + JSON.stringify(data));
-
-
-    // POSICION GEOCODIFICADA de la direccion
-    latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
-    longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
-    //alert(latitud + " / " + longitud);
-        coordsG = {lat: latitud, lng: longitud},
-        markerG = new H.map.Marker(coordsG);
-        map.addObject(markerG);
-    //     alert(JSON.stringify(data));
-    }, function(xhr, status) { console.log("error geo: "+status); }   );
 
 })
 /****************************************************************************************/
@@ -180,80 +111,7 @@ $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
     mainView.router.navigate('/chats/');
   });
 
-  // Inicio del mapa
-
-    var  lati = -32.95;
-    var  longi = -60.68;
-
-// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/get-started.html
-      // Initialize the platform object:
-      var platform = new H.service.Platform({
-        'apikey': '0RTLydGJnLLp5DlfAFU0ctJ3CUbIiBHqs4K-qMAxFlY'
-      });
-
-      // Obtain the default map types from the platform object
-      var maptypes = platform.createDefaultLayers();
-
-      // Instantiate (and display) a map object:
-      var map = new H.Map(
-        document.getElementById('mapContainer'),
-        maptypes.vector.normal.map,
-        {
-          zoom: 13,
-          center: {lat: lati, lng: longi}
-        
-        });
-
-// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/marker-objects.html
-var svgMarkup = '<svg width="24" height="24" ' +
-    'xmlns="http://www.w3.org/2000/svg">' +
-    '<rect stroke="white" fill="#1b468d" x="1" y="1" width="22" ' +
-    'height="22" /><text x="12" y="18" font-size="12pt" ' +
-    'font-family="Arial" font-weight="bold" text-anchor="middle" ' +
-    'fill="white">H</text></svg>';
-var icon = new H.map.Icon(svgMarkup),
-    coords = {lat: lati, lng: longi},
-    marker = new H.map.Marker(coords, {icon: icon});
-
-// Add the marker to the map and center the map at the location of the marker:
-map.addObject(marker);
-map.setCenter(coords); // centrar el mapa en una coordenada.
-
-
-    lati2 = -32.958;
-    longi2 = -60.689;
-    coords2 = {lat: lati2, lng: longi2},
-    marker2 = new H.map.Marker(coords2);
-    map.addObject(marker2);
-
-    if (latUsuario!=0 && lonUsuario!=0) {
-        coordsUsu = {lat: latUsuario, lng: lonUsuario},
-        markerUsu = new H.map.Marker(coordsUsu);
-        map.addObject(markerUsu);
-    }
-
-// GEOCODER ES UN SERVICIO DE REST
-url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
-app.request.json(url, {
-    searchtext: 'Cordoba 3201, rosario, santa fe',
-    apiKey: 'Gz-JLm7EYGkMQZ2XuuU8feRF-CQYjqVUDFqtICVtQwU',
-    gen: '9'
-  }, function (data) {
-     // hacer algo con data
-     console.log("geo:" + JSON.stringify(data));
-
-
-    // POSICION GEOCODIFICADA de la direccion
-    latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
-    longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
-    //alert(latitud + " / " + longitud);
-        coordsG = {lat: latitud, lng: longitud},
-        markerG = new H.map.Marker(coordsG);
-        map.addObject(markerG);
-    //     alert(JSON.stringify(data));
-    }, function(xhr, status) { console.log("error geo: "+status); }   );
-
-
+   mapaConUI();
 
 })
 /****************************************************************************************/
@@ -561,7 +419,9 @@ function fnIniciarDatos() {
   }
   refUsuarios.doc("programacion21@live.com").set(data);
 };
-/*HACER LA QUERY A LA BD Y CARGAR TODA LA INFO DE USUARIO AL PANEL*/
+
+
+/**********************HACER LA QUERY A LA BD Y CARGAR TODA LA INFO DE USUARIO AL PANEL**************************/
 function cargarDatosUsuario() {
   // REF: https://firebase.google.com/docs/firestore/query-data/get-data
   // TITULO: Obtén un documento
@@ -587,45 +447,224 @@ function cargarDatosUsuario() {
     console.log("Error getting document:", error);
   });
 };
-/********************************************************************************/
-/*codigo de la api de mapas*/
-function mapApi(la, lo) {
-  lat = la;
-  lon = lo;
-  console.log("latitud: " + la);
-  console.log("longitud: " + lo);
-  // Por el momento voy a guardar en la base de datos la latitud y longitud
-  /*
-/// NO me deja setearlo igual que abajo asi que lo hago con un update
- var data = {
-    latitud: lat,
-    longitud: lon
-  }
+/**********************FIN DE HACER LA QUERY A LA BD Y CARGAR TODA LA INFO DE USUARIO AL PANEL*******************/
 
-//  refUsuarios.doc(email).set(data);
- refUsuarios.doc(email).set(data);
-*/
-  // Tampoco anda..
-  refUsuarios.doc(email).update({
-    latitud: lat,
-    longitud: lon
-  }).then(function () {
-    console.log("actualizado ok");
-  }).catch(function (error) {
-    console.log("Error: " + error);
-  });
+
+/******************************************* MAPA DE HERE CON UI ************************************************/
+// Aca: https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/map-controls-ui.html
+function mapaConUI(){
+
+
+    //Initialize the Platform object:
+    var platform = new H.service.Platform({
+        'apikey': '0RTLydGJnLLp5DlfAFU0ctJ3CUbIiBHqs4K-qMAxFlY'
+    });
+
+    // Get the default map types from the Platform object:
+    var defaultLayers = platform.createDefaultLayers();
+
+    // Instantiate the map:
+    var map = new H.Map(
+        document.getElementById('mapContainer'),
+        defaultLayers.vector.normal.map,
+        {
+            zoom: 16,
+            center: { lng: lon, lat: lat }
+        });
+
+// MapEvents enables the event system
+// Behavior implements default interactions for pan/zoom (also on mobile touch environments)
+var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+// Create the default UI components
+var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+var mapSettings = ui.getControl('mapsettings');
+var zoom = ui.getControl('zoom');
+var scalebar = ui.getControl('scalebar');
+
+mapSettings.setAlignment('top-left');
+zoom.setAlignment('top-left');
+scalebar.setVisibility(false); 
+
+
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/geo-shapes.html
+// Agregar el "radio"
+// Instantiate a circle object (using the default style):
+var circle = new H.map.Circle({lat: lat, lng: lon}, 300);
+
+// Add the circle to the map:
+map.addObject(circle);
+
+
+// Create an info bubble object at a specific geographic location:
+var bubble = new H.ui.InfoBubble({ lng: lon, lat: lat }, {
+                content: '<b>Casa!</b>'
+             });
+
+// Add info bubble to the UI:
+ui.addBubble(bubble);
+
+
+function openBubble(position, text){
+    if(!bubble){
+        bubble =  new H.ui.InfoBubble(
+            position,
+            // The FO property holds the province name.
+            {content: '<small>' + text+ '</small>'});
+        ui.addBubble(bubble);
+    } else {
+        bubble.setPosition(position);
+        bubble.setContent('<small>' + text+ '</small>');
+        bubble.open();
+    }
+}
+
+
+
+$$('#ubicacionAceptada').on('click',function(){geocodificador()});
+
+function geocodificador(){
+
+var busqueda = $$('#busquedaUbicacion').val();
+
+// GEOCODER ES UN SERVICIO DE REST
+// Utilizar API Key de REST
+
+// https://developer.here.com/api-explorer/rest/geocoder
+url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
+app.request.json(url, {
+    searchtext: busqueda,
+    apiKey: 'Gz-JLm7EYGkMQZ2XuuU8feRF-CQYjqVUDFqtICVtQwU',
+    gen: '9'
+  }, function (data) {
+     // hacer algo con data
+     console.log("geo:" + JSON.stringify(data));
+
+    // POSICION GEOCODIFICADA de la direccion
+    latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
+    longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
+    //alert(latitud + " / " + longitud);
+        coordsG = {lat: latitud, lng: longitud},
+        markerG = new H.map.Marker(coordsG);
+        map.addObject(markerG);
+    //     alert(JSON.stringify(data));
+
+
+}, function(xhr, status) { console.log("error geo: "+status); }   );
+
+
 };
 
-function cerrarSesion() {
-  firebase.auth().signOut().then(function () {
-    // Sign-out successful.
-    //reestablesco todas las variables
-    email = "", password = "", tituloChat = "", nombre = "", telefono = "", usuario = "", avatar = "", tipo = "", lat = "", lon = "", sinRuta = "";
-    //voy al index
-    mainView.router.navigate('/index/');
-    app.panel.close();
-    //me tira error de consola el destroy() pero es la secuencia que funciona al parecer
-  }).catch(function (error) {
-    // An error happened.
-  });
-};
+
+
+var lat2 = "-32.9956995";
+var lon2 = "-60.6508671";
+var lat3 = "-32.9956999";
+var lon3 = "-60.6508675";
+
+
+function addInfoBubble(map) {
+  var group = new H.map.Group();
+  map.addObject(group);
+ addMarkerToGroup(group, {lat: lat , lng: lon});
+ addMarkerToGroup(group, {lat: lat2 , lng: lon2});
+ addMarkerToGroup(group, {lat: lat3 , lng: lon3});
+}
+    function addMarkerToGroup(group, coordinate, html) {
+      var marker = new H.map.Marker(coordinate);
+      group.addObject(marker);     
+    }
+
+
+addInfoBubble(map);
+
+
+}
+
+/************************************* FIN DE MAPA DE HERE CON UI ***********************************************/
+
+
+
+
+
+/*************************************MAPA DE JORGE *********************************************************/
+function mapaDeJorge(){
+
+
+ // Inicio del mapa
+
+    var  lati = lat;
+    var  longi = lon;
+
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/get-started.html
+      // Initialize the platform object:
+      var platform = new H.service.Platform({
+        'apikey': '0RTLydGJnLLp5DlfAFU0ctJ3CUbIiBHqs4K-qMAxFlY'
+      });
+
+      // Obtain the default map types from the platform object
+      var maptypes = platform.createDefaultLayers();
+
+      // Instantiate (and display) a map object:
+      var map = new H.Map(
+        document.getElementById('mapContainer'),
+        maptypes.vector.normal.map,
+        {
+          zoom: 13,
+          center: {lat: lati, lng: longi}
+        
+        });
+
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/marker-objects.html
+var svgMarkup = '<svg width="24" height="24" ' +
+    'xmlns="http://www.w3.org/2000/svg">' +
+    '<rect stroke="white" fill="#1b468d" x="1" y="1" width="22" ' +
+    'height="22" /><text x="12" y="18" font-size="12pt" ' +
+    'font-family="Arial" font-weight="bold" text-anchor="middle" ' +
+    'fill="white">H</text></svg>';
+var icon = new H.map.Icon(svgMarkup),
+    coords = {lat: lati, lng: longi},
+    marker = new H.map.Marker(coords, {icon: icon});
+
+// Add the marker to the map and center the map at the location of the marker:
+map.addObject(marker);
+map.setCenter(coords); // centrar el mapa en una coordenada.
+
+
+    lati2 = -32.958;
+    longi2 = -60.689;
+    coords2 = {lat: lati2, lng: longi2},
+    marker2 = new H.map.Marker(coords2);
+    map.addObject(marker2);
+
+    if (latUsuario!=0 && lonUsuario!=0) {
+        coordsUsu = {lat: latUsuario, lng: lonUsuario},
+        markerUsu = new H.map.Marker(coordsUsu);
+        map.addObject(markerUsu);
+    }
+
+// GEOCODER ES UN SERVICIO DE REST
+url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
+app.request.json(url, {
+    searchtext: 'Cordoba 3201, rosario, santa fe',
+    apiKey: 'Gz-JLm7EYGkMQZ2XuuU8feRF-CQYjqVUDFqtICVtQwU',
+    gen: '9'
+  }, function (data) {
+     // hacer algo con data
+     console.log("geo:" + JSON.stringify(data));
+
+
+    // POSICION GEOCODIFICADA de la direccion
+    latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
+    longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
+    //alert(latitud + " / " + longitud);
+        coordsG = {lat: latitud, lng: longitud},
+        markerG = new H.map.Marker(coordsG);
+        map.addObject(markerG);
+    //     alert(JSON.stringify(data));
+    }, function(xhr, status) { console.log("error geo: "+status); }   );
+
+}
+
+/********************************FIN DEL MAPA DE JORGE ************************************************/

@@ -72,6 +72,16 @@
 	margin: auto 0px;
 }
 
+#mapContainer{	
+width:100vw;
+  background:#fff;
+	height: 70vh;
+}
+
+
+
+
+
 .person{
 	width: 2.5em;
 	margin: .5em;
@@ -310,6 +320,8 @@ font-size: inherit;
 width: 100%;
 }
 
+
+
 .accordion-list{
 	width: 100%;
 }
@@ -447,7 +459,26 @@ padding: 0px;
 .ayudaCentrado{
 	padding-left: 45vw;
 }
+.logoUbicacion{
+	top: .2em;
+	right: .2em;
+}
+.md .navbar-inner{
+	overflow: visible;
+}
 
+.cajaUbicacion{
+margin-top: -5em;
+}
+
+.botonListo{
+
+	margin-top: 1em;
+}
+
+.list .item-inner{
+	padding-right: 0px;	
+}
 
 /**********************Si encuentro la forma uso estas fuentes***************************/
 @font-face {
