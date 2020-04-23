@@ -133,7 +133,7 @@ $$('.cajaUbicacion').removeClass('oculto');
 //Saco el selector y agrego el textbox de ubicaciones
 $$('.radioAlerta').addClass('oculto');
 
-infoBubbles();
+//infoBubbles();
 }
    mapaConUI();
 })
