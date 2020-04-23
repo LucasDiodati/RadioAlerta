@@ -10,7 +10,17 @@ Some notes:
 * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
 * Enable inline JS: add 'unsafe-inline' to default-src -->
   <!--CSP con permisos para varias cosas - creo que hay que cambiarlo cuando se compile-->
-  <!--meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs "-->
+  <meta http-equiv="Content-Security-Policy"
+    content="
+      default-src   * 'self' 'unsafe-inline' 'unsafe-eval';
+      script-src    * 'self' 'unsafe-inline' 'unsafe-eval';
+      img-src       * data: blob: 'self' 'unsafe-inline' 'unsafe-eval';
+      frame-src     * 'self' 'unsafe-inline' 'unsafe-eval';
+      style-src     * 'self' 'unsafe-inline' 'unsafe-eval';
+      font-src      * data: file: URIs 'self' 'unsafe-inline' 'unsafe-eval';
+      connect-src   * data: blob: file: 'self' 'unsafe-inline' 'unsafe-eval';
+      worker-src    * data: blob: file: 'self' 'unsafe-inline' 'unsafe-eval';
+      ">
   <!-- Required meta tags-->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
@@ -40,7 +50,7 @@ Some notes:
 
 
         <!-- Bottom Toolbar -->
-        <div class="toolbar toolbar-bottom no-hairline transparente">
+        <div class="toolbar toolbar-bottom no-hairline celeste">
           <div class="toolbar-inner">
             <p class="ayudaCentrado"><a href="#" data-popup=".my-popup" class="popup-open ayuda">Ayuda</a>
             </p>
@@ -63,9 +73,13 @@ Some notes:
                   <button class="row button button-large button-fill rojo centrado inicio">
                     <img src="img/sign_img.png" class="person">Crear cuenta</button>
                 </a>
-                <a href="/mapa/">
+                <a href="#" id="radioActual">
+                  <button class="row button button-large button-fill azul centrado inicio">
+                     MAPA RADIO ACTUAL</button>
+                </a>
+                <a href="#" id="ubicacionesGuardadas">
                   <button class="row button button-large button-fill rojo centrado inicio">
-                    <img src="img/sign_img.png" class="person">ACCESO A MAPA</button>
+                    MAPA UBICACIONES GUARDADAS</button>
                 </a>
               </div>
             </div>

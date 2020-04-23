@@ -14,7 +14,7 @@ var app = new Framework7({
     swipeOnlyClose:'true',
     closeByBackdropClick: 'true',
   },
-  // *****************RUTAS*********************
+  /******************************************************************************************************RUTAS*/
   routes: [{
     path: '/index/',
     url: 'index.html',
@@ -35,7 +35,7 @@ var app = new Framework7({
     url: 'chats.html',
   }, {
     path: '/p-us/',
-    url: 'pefil-usuario.html',
+    url: 'perfil-usuario.html',
   }, {
     path: '/p-adm/',
     url: 'perfil-admin.html',
@@ -46,16 +46,32 @@ var app = new Framework7({
 });
 var mainView = app.views.create('.view-main');
 var email, password, tituloChat, nombre, telefono, usuario, avatar, tipo, lat, lon, sinRuta;
+// variable bandera para ingresar o crear cuenta
 var nuevaCuenta = 0;
-
+// para la ubicacion actual y el radio por defecto
 var latUsuario=0, lonUsuario=0;
-
-
-/* BASE DE DATOS */
+var radioActual = 1;
+var radioAlerta = 300;
+// para el autologin con recordar contraseña
+var storage = window.localStorage;
+var us = { "email": "", "clave": "" };
+var usuarioLocal ="", claveLocal = "";
+// BASE DE DATOS
 var db, refUsuarios, refTiposUsuarios;
+//AVATARES declaro estas variables por si el dia de mañana quiero agregar mas avatares
+  var filas = 15;
+  var fila = 1;
+  var avatarN = 1;
+
+ 
+
+/************************************************************************************************DEVICE READY*/
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function () {
   console.log("Device is ready!");
+
+    consultarLocalStorage();
+
   var app = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
   if (app) {
     // PhoneGap application
@@ -73,8 +89,9 @@ $$(document).on('deviceready', function () {
     navigator.geolocation.getCurrentPosition(onSuccess, onError);
   } else {
     // Web page
-    lat = "-32.9956997";
-    lon = "-60.6508673";
+    lat = "-32.9467536";
+    lon = "-60.6373007"; // Peatonal cordoba y san martin
+
    console.log("LAT COMPUTADORA: " + lat + " LON COMPUTADORA: " + lon);
   }
   /* seteo variables de BD */
@@ -85,23 +102,46 @@ $$(document).on('deviceready', function () {
   if (iniciarDatos == 1) {
     fnIniciarDatos();
   }
+
 });
+
 // Option 1. Using one 'page:init' handler for all pages
 $$(document).on('page:init', function (e) {
   // Do something here when page loaded and initialized
   console.log(e);
 })
-/****************************************************************************************/
-
+/**********************************************************************************************************MAPA*/
 $$(document).on('page:init', '.page[data-name="mapa"]', function (e) {
 
+    panelIzq();
+
+if(radioActual == 1){
+$$('.cajaUbicacion').addClass('oculto');
+//Agregar el selector de rango y trackearlo con una funcion
+$$('.radioAlerta').removeClass('oculto');
+  //Si entro a ver mi radio actual solo puedo modificar el rango de radio y confirmar que es mi ubicación
+$$('#ubicacionAceptada').on('click',function(){
+/* guardar los cambios en el rango si lo hubiese y redireccionar a /chats/*/});
+
+$$('.radioAlerta').on('range:change', function (e) {
+  var range = app.range.get(e.target);
+radioAlerta = range.value;
+console.log(radioAlerta);
+});
+}else{
+$$('.cajaUbicacion').removeClass('oculto');
+//Saco el selector y agrego el textbox de ubicaciones
+$$('.radioAlerta').addClass('oculto');
+
+infoBubbles();
+}
    mapaConUI();
-
-
 })
-/****************************************************************************************/
+/*****************************************************************************************************UBICACION*/
 $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
   console.log(e);
+      
+
   /** Voy a mostrar la latitud y longitud actual del usuario hasta que pueda incorporar el mapa**/
   $$('.latitud').append(lat);
   $$('.longitud').append(lon);
@@ -110,12 +150,13 @@ $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
     cargarDatosUsuario();
     mainView.router.navigate('/chats/');
   });
-
    mapaConUI();
-
 })
-/****************************************************************************************/
+/********************************************************************************************************CHATS*/
 $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
+    panelIzq();
+
+
   $$('#chatGeneral').on('click', function () {
     tituloChat = "Chat general";
     mainView.router.navigate('/chat-general/');
@@ -125,10 +166,93 @@ $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
     mainView.router.navigate('/chat-general/');
   });
   cargarDatosUsuario();
-  $$('#cerrarSesion').on('click', cerrarSesion);
 })
-/****************************************************************************************/
+
+/***********************************************************************************************PERFIL USUARIO*/
+$$(document).on('page:init', '.page[data-name="p-us"]', function (e) {
+console.log("perfil");
+    panelIzq();
+
+})
+/********************************************************************************************************INDEX*/
+$$(document).on('page:init', '.page[data-name="index"]', function (e) {
+    console.log(e);
+  // Variable bandera para entrar a crear cuenta
+  $$('#nuevaCuenta').on('click', function () {
+    nuevaCuenta = 1;
+    mainView.router.navigate('/inicioSesion/');
+  });
+  $$('#iniciarSesion').on('click', function () {
+    nuevaCuenta = 0;
+    mainView.router.navigate('/inicioSesion/');
+  });
+
+// ESTO DESPUES LO VOY A TENER QUE PASAR A CREAR CUENTA Y CHATS YA QUE SON LINKS INTERNOS
+$$('#radioActual').on('click', function () {
+    radioActual = 1;
+    mainView.router.navigate('/mapa/');
+  });
+$$('#ubicacionesGuardadas').on('click', function () {
+    radioActual = 0;
+    mainView.router.navigate('/mapa/');
+  });
+
+})
+/*************************************************************************INICIO SESION Y CREAR CUENTA CON AUTH*/
+$$(document).on('page:init', '.page[data-name="inicioSesion"]', function (e) {
+    console.log(e);
+  /*******************CREAR CUENTA********************/
+  // Voy a usar esta misma vista para crear la cuenta con el servicio de autenticacion
+  if (nuevaCuenta == 1) {
+    if ($$('#colorEncabezado').hasClass('azul')) {
+      $$('#colorEncabezado').removeClass('azul').addClass('rojo');
+      $$('#tituloLogin').text('Crear cuenta');
+      $$('#olvideContrasena').addClass('oculto');
+    }
+    $$('#ingresar').on('click', function () {
+      email = $$('#emailLogin').val();
+      password = $$('#passwordLogin').val();
+      crearUsuario();
+    });
+  
+/***********************LOGIN*************************/
+// sign in con firebase auth
+  } else {
+    if ($$('#colorEncabezado').hasClass('rojo')) {
+      $$('#colorEncabezado').removeClass('rojo').addClass('azul');
+      $$('#tituloLogin').text('Iniciar sesión');
+      $$('#olvideContrasena').removeClass('oculto');
+    }
+    // log in con firebase auth
+    $$('#ingresar').on('click', function () {
+loginConEmail();
+    });
+  }
+})
+/***************************************************************************************CREAR CUENTA 2DA VISTA*/
+$$(document).on('page:init', '.page[data-name="crearCuenta"]', function (e) {
+  console.log(e);
+  //llamada para crear el usuario almacenandolo en firebase y redireccionar a ubicacion
+  $$('#crearUsuario').on('click', function () {
+    fnGuardarDP();
+  });
+  //llamada a la carga de avatares dentro del popup dinamicamente
+  $$('#modalAvatares').on('click', cargarAvatares);
+  //llamada a vaciar el popup de los avatares cuando cierro o selecciono
+  $$('#vaciarAv').on('click', vaciarAv);
+  //llamada para seleccionar el avatar clickeado pasandole el src del clickeado a avatarSeleccionado()
+  $$('#cargaAvatar').on('mouseenter', function () {
+    $$('.av').on('click', function () {
+      avatarSeleccionado(this.src);
+    });
+  });
+  
+})
+/*************************************************************************************************CHAT GENERAL*/
 $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
+    panelIzq();
+
+
   $$('#tituloChat').text(tituloChat);
   // Init Messages
   var messages = app.messages.create({
@@ -193,6 +317,7 @@ $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
     // Receive dummy message
     receiveMessage();
   });
+
   // Dummy response
   var answers = ['Yes!', 'No', 'Hm...', 'I am not sure', 'And what about you?', 'May be ;)', 'Lorem ipsum dolor sit amet, consectetur', 'What?', 'Are you sure?', 'Of course', 'Need to think about it', 'Amazing!!!']
   var people = [{
@@ -211,7 +336,7 @@ $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
       var person = people[Math.floor(Math.random() * people.length)];
       // Show typing indicator
       messages.showTyping({
-        header: person.name + ' is typing',
+        header: person.name + ' está escribiendo',
         avatar: person.avatar
       });
       setTimeout(function () {
@@ -228,105 +353,19 @@ $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
       }, 4000);
     }, 1000);
   }
+
+
 })
-/****************************************************************************************/
-$$(document).on('page:init', '.page[data-name="index"]', function (e) {
-  //  console.log(e);
-  // Variable bandera para entrar a crear cuenta
-  $$('#nuevaCuenta').on('click', function () {
-    nuevaCuenta = 1;
-    mainView.router.navigate('/inicioSesion/');
-  });
-  $$('#iniciarSesion').on('click', function () {
-    nuevaCuenta = 0;
-    mainView.router.navigate('/inicioSesion/');
-  });
-})
-/****************************************************************************************/
-$$(document).on('page:init', '.page[data-name="inicioSesion"]', function (e) {
-  //  console.log(e);
-  // Voy a usar esta misma vista para crear la cuenta con el servicio de autenticacion
-  // sign in con firebase auth
-  if (nuevaCuenta == 1) {
-    if ($$('#colorEncabezado').hasClass('azul')) {
-      $$('#colorEncabezado').removeClass('azul').addClass('rojo');
-      $$('#tituloLogin').text('Crear cuenta');
-      $$('#olvideContrasena').addClass('oculto');
-    }
-    $$('#ingresar').on('click', function () {
-      email = $$('#emailLogin').val();
-      password = $$('#passwordLogin').val();
-      crearUsuario();
-    });
-    // toma los valores de email y contraseña y crea la conexión con firebase para almacenarla
-    function crearUsuario() {
-      firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        if (errorCode == 'auth/weak-password') {
-          alert('Clave muy débil.');
-        } else {
-          alert(errorMessage);
-        }
-        console.log(errorMessage);
-      });
-      mainView.router.navigate('/crearCuenta/');
-    };
-    /****************************************************************************************/
-  } else {
-    if ($$('#colorEncabezado').hasClass('rojo')) {
-      $$('#colorEncabezado').removeClass('rojo').addClass('azul');
-      $$('#tituloLogin').text('Iniciar sesión');
-      $$('#olvideContrasena').removeClass('oculto');
-    }
-    // log in con firebase auth
-    $$('#ingresar').on('click', function () {
-      email = $$('#emailLogin').val();
-      password = $$('#passwordLogin').val();
-      // Estoy puenteando el login para trabajar más comodo con las vistas
-      //email = "programacion21@live.com";
-      //password = "kat13579";
-      //Se declara la variable huboError (bandera)
-      var huboError = 0;
-      firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
-        //Si hubo algun error, ponemos un valor referenciable en la variable huboError
-        huboError = 1;
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.error(errorMessage);
-        console.log(errorCode);
-      }).then(function () {
-        //En caso de que esté correcto el inicio de sesión y no haya errores, se dirige a la siguiente página
-        if (huboError == 0) {
-          mainView.router.navigate('/chats/');
-        }
-      });
-    });
-  }
-})
-/****************************************************************************************/
-$$(document).on('page:init', '.page[data-name="crearCuenta"]', function (e) {
-  console.log(e);
-  // declaro estas variables por si el dia de mañana quiero agregar mas avatares
-  var filas = 15;
-  var fila = 1;
-  var avatarN = 1;
-  //llamada para crear el usuario almacenandolo en firebase y redireccionar a ubicacion
-  $$('#crearUsuario').on('click', function () {
-    fnGuardarDP();
-  });
-  //llamada a la carga de avatares dentro del popup dinamicamente
-  $$('#modalAvatares').on('click', cargarAvatares);
-  //llamada a vaciar el popup de los avatares cuando cierro o selecciono
-  $$('#vaciarAv').on('click', vaciarAv);
-  //llamada para seleccionar el avatar clickeado pasandole el src del clickeado a avatarSeleccionado()
-  $$('#cargaAvatar').on('mouseenter', function () {
-    $$('.av').on('click', function () {
-      avatarSeleccionado(this.src);
-    });
-  });
-  // cuando abro el popup de los avatares creo las filas y los avatares de manera dinámica
+
+
+/***************************************************************************************************************/
+/***************************************************************************************************************/
+/***********************************************FUNCIONES*******************************************************/
+/***************************************************************************************************************/
+/***************************************************************************************************************/
+
+
+// cuando abro el popup de los avatares creo las filas y los avatares de manera dinámica
   function cargarAvatares() {
     console.log("CARGAR AVATARES");
     for (var i = 1; i <= filas; i++) {
@@ -361,7 +400,8 @@ $$(document).on('page:init', '.page[data-name="crearCuenta"]', function (e) {
     vaciarAv();
     console.log("avatar seleccionado: " + avatar);
   };
-})
+
+
 /*************************FUNCIONES QUE TOME PRESTADAS DE JORGE**********************/
 function fnGuardarDP() {
   nombre = $$('#nombre').val();
@@ -380,7 +420,7 @@ function fnGuardarDP() {
     tipo: "VIS"
   }
   refUsuarios.doc(email).set(data);
-  mainView.router.navigate('/ubicacion/');
+  mainView.router.navigate('/chats/');
 }
 
 function fnIniciarDatos() {
@@ -453,9 +493,7 @@ function cargarDatosUsuario() {
 /******************************************* MAPA DE HERE CON UI ************************************************/
 // Aca: https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/map-controls-ui.html
 function mapaConUI(){
-
-
-    //Initialize the Platform object:
+//Initialize the Platform object:
     var platform = new H.service.Platform({
         'apikey': '0RTLydGJnLLp5DlfAFU0ctJ3CUbIiBHqs4K-qMAxFlY'
     });
@@ -469,13 +507,12 @@ function mapaConUI(){
         defaultLayers.vector.normal.map,
         {
             zoom: 16,
-            center: { lng: lon, lat: lat }
+            center: { lng: lon, lat: lat },
+              pixelRatio: window.devicePixelRatio || 1
         });
-
 // MapEvents enables the event system
 // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
 var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-
 // Create the default UI components
 var ui = H.ui.UI.createDefault(map, defaultLayers);
 
@@ -488,14 +525,23 @@ zoom.setAlignment('top-left');
 scalebar.setVisibility(false); 
 
 
-// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/geo-shapes.html
-// Agregar el "radio"
-// Instantiate a circle object (using the default style):
-var circle = new H.map.Circle({lat: lat, lng: lon}, 300);
+if(radioActual == 1){
+/*AGREGO UN CIRCULO EDITABLE SOBRE LA POSICION ACTUAL*/
+circuloModificable();
+}else{
+$$('#ubicacionAceptada').on('click',geocodificador);
+/*AGREGO UN CIRCULO COMUN*/
+circuloComun();
+// Agrego burbujas de texto
+bubblesTexto();
+}
 
-// Add the circle to the map:
-map.addObject(circle);
 
+
+
+
+/*****************FUNCION INFO BUBBLES CON TEXTO ********************/
+function bubblesTexto(){
 
 // Create an info bubble object at a specific geographic location:
 var bubble = new H.ui.InfoBubble({ lng: lon, lat: lat }, {
@@ -521,9 +567,10 @@ function openBubble(position, text){
 }
 
 
+}
 
-$$('#ubicacionAceptada').on('click',function(){geocodificador()});
-
+/********************FIN INFO BUBBLES CON TEXTO**********************/
+/************************GEOCODIFICACION*****************************/
 function geocodificador(){
 
 var busqueda = $$('#busquedaUbicacion').val();
@@ -553,15 +600,16 @@ app.request.json(url, {
 
 }, function(xhr, status) { console.log("error geo: "+status); }   );
 
-
 };
+/***********************FIN GEOCODIFICACION*****************************/
+/******************FUNCION INFO BUBBLES EN GRUPOS***********************/
+//Esto lo paso Jorge para que podamos agrupar los marcadores
 
-
-
-var lat2 = "-32.9956995";
-var lon2 = "-60.6508671";
-var lat3 = "-32.9956999";
-var lon3 = "-60.6508675";
+function infoBubbles(){
+var lat2 = "-32.9456869";
+var lon2 = "-60.6445324";
+var lat3 = "-32.9456448";
+var lon3 = "-60.6445155";
 
 
 function addInfoBubble(map) {
@@ -578,13 +626,139 @@ function addInfoBubble(map) {
 
 
 addInfoBubble(map);
+}
 
+/*********************FIN INFO BUBBLES EN GRUPOS***********************/
+
+/*****************FUNCION CIRCULO COMUN *******************************/
+function circuloComun(){
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/geo-shapes.html
+// Agregar el "radio"
+// Instantiate a circle object (using the default style):
+var circle = new H.map.Circle({lat: lat, lng: lon}, 300);
+// Add the circle to the map:
+map.addObject(circle);
+}
+/***********************FIN CIRCULO COMUN *****************************/
+
+/*******************FUNCION DRAGGABLE CIRCLE **************************/
+// Aca https://developer.here.com/documentation/examples/maps-js/resizable-geoshapes/resizable-circle
+function circuloModificable(){
+
+/**
+ * Adds resizable geo shapes to map
+ *
+ * @param {H.Map} map                      A HERE Map instance within the application
+ */
+function createResizableCircle(map) {
+  var circle = new H.map.Circle(
+        {lat: lat, lng: lon},
+        radioAlerta,
+        {
+          style: {fillColor: 'rgba(250, 250, 0, 0.7)', lineWidth: 0}
+        }
+      ),
+      circleOutline = new H.map.Polyline(
+        circle.getGeometry().getExterior(),
+        {
+          style: {lineWidth: 6, strokeColor: 'rgba(255, 0, 0, 0)'}
+        }
+      ),
+      circleGroup = new H.map.Group({
+        volatility: true, // mark the group as volatile for smooth dragging of all it's objects
+        objects: [circle, circleOutline]
+      }),
+      circleTimeout;
+     
+
+  // ensure that the objects can receive drag events
+  circle.draggable = true;
+  circleOutline.draggable = true;
+
+  // extract first point of the circle outline polyline's LineString and
+  // push it to the end, so the outline has a closed geometry
+  circleOutline.getGeometry().pushPoint(circleOutline.getGeometry().extractPoint(0));
+
+  // add group with circle and it's outline (polyline)
+  map.addObject(circleGroup);
+
+  // event listener for circle group to show outline (polyline) if moved in with mouse (or touched on touch devices)
+  circleGroup.addEventListener('pointerenter', function(evt) {
+    var currentStyle = circleOutline.getStyle(),
+        newStyle = currentStyle.getCopy({
+          strokeColor: 'rgb(255, 0, 0)'
+        });
+
+    if (circleTimeout) {
+      clearTimeout(circleTimeout);
+      circleTimeout = null;
+    }
+    // show outline
+    circleOutline.setStyle(newStyle);
+  }, true);
+
+  // event listener for circle group to hide outline if moved out with mouse (or released finger on touch devices)
+  // the outline is hidden on touch devices after specific timeout
+  circleGroup.addEventListener('pointerleave', function(evt) {
+    var currentStyle = circleOutline.getStyle(),
+        newStyle = currentStyle.getCopy({
+          strokeColor: 'rgba(255, 0, 0, 0)'
+        }),
+        timeout = (evt.currentPointer.type == 'touch') ? 1000 : 0;
+
+    circleTimeout = setTimeout(function() {
+      circleOutline.setStyle(newStyle);
+    }, timeout);
+    document.body.style.cursor = 'default';
+  }, true);
+
+  // event listener for circle group to change the cursor if mouse position is over the outline polyline (resizing is allowed)
+  circleGroup.addEventListener('pointermove', function(evt) {
+    if (evt.target instanceof H.map.Polyline) {
+      document.body.style.cursor = 'pointer';
+    } else {
+      document.body.style.cursor = 'default'
+    }
+  }, true);
+
+  // event listener for circle group to resize the geo circle object if dragging over outline polyline
+  circleGroup.addEventListener('drag', function(evt) {
+    var pointer = evt.currentPointer,
+        distanceFromCenterInMeters = circle.getCenter().distance(map.screenToGeo(pointer.viewportX, pointer.viewportY));
+
+    // if resizing is alloved, set the circle's radius
+    if (evt.target instanceof H.map.Polyline) {
+      circle.setRadius(distanceFromCenterInMeters);
+      radioAlerta = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
+      console.log(radioAlerta);
+
+      // use circle's updated geometry for outline polyline
+      var outlineLinestring = circle.getGeometry().getExterior();
+      // extract first point of the outline LineString and push it to the end, so the outline has a closed geometry
+      outlineLinestring.pushPoint(outlineLinestring.extractPoint(0));
+      circleOutline.setGeometry(outlineLinestring);
+
+      // prevent event from bubling, so map doesn't receive this event and doesn't pan
+      evt.stopPropagation();
+    }
+  }, true);
 
 }
 
-/************************************* FIN DE MAPA DE HERE CON UI ***********************************************/
+createResizableCircle(map);
 
+// Una funcion que redondea a multiplos de 5 para el radio
+function round5(x)
+{
+    return (x % 5) >= 2.5 ? parseInt(x / 5) * 5 + 5 : parseInt(x / 5) * 5;
+}
 
+}
+/************************FIN DE CIRCULO DRAGGABLE***************************/
+
+}
+
+/********************************** FIN DE MAPA DE HERE CON UI ***********************************************/
 
 
 
@@ -668,3 +842,155 @@ app.request.json(url, {
 }
 
 /********************************FIN DEL MAPA DE JORGE ************************************************/
+
+/********************************AUTO LOGIN CON SESSION STORAGE ***************************************/
+
+function consultarLocalStorage(){
+        if(localStorage.getItem("us") === null){/*no hago nada*/}else{
+        var usuarioGuardado = storage.getItem("us");
+        usuarioGuardado = JSON.parse(usuarioGuardado);
+        // convertimos el string en JSON
+
+        if (usuarioGuardado.email == ""){
+          console.log("no hay datos en el local");
+        } else {
+        
+        console.log(" usuarioguardado.email: " + usuarioGuardado.email);
+        console.log(" usuarioguardado.clave: " + usuarioGuardado.clave);
+  //pasar los datos del json a dos variables independientes
+        email = usuarioGuardado.email;
+        password = usuarioGuardado.clave;
+        console.log("usuariolocal + clavelocal: " + email + password)
+  //si la variable tiene datos llamamos a una funcion de login pasandole las variables como parametros
+        
+        if ( usuarioGuardado != null){
+          LoguearseConLocal(email, password);
+        };
+      };
+    };
+    };
+
+    function LoguearseConLocal(u,c ){
+             console.log("loguearseconlocal, u+c"+u+c)
+             
+        //Se declara la variable huboError (bandera)
+        var huboError = 0;     
+        firebase.auth().signInWithEmailAndPassword(u, c)
+            .catch(function(error){
+                //Si hubo algun error, ponemos un valor referenciable en la variable huboError
+                huboError = 1;
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.error(errorMessage);
+                console.log(errorCode);
+
+                
+            })
+            .then(function(){   
+                //En caso de que esté correcto el inicio de sesión y no haya errores, se dirige a la siguiente página
+                if(huboError == 0){
+                  console.log("te logueaste");
+                  cargarDatosUsuario();
+          mainView.router.navigate('/p-us/');
+
+                }
+            }); 
+      
+    };
+
+/*****************************FIN AUTO LOGIN CON SESSION STORAGE ***************************************/
+
+function loginConEmail(){
+
+
+      email = $$('#emailLogin').val();
+      password = $$('#passwordLogin').val();
+      // Estoy puenteando el login para trabajar más comodo con las vistas
+      //email = "programacion21@live.com";
+      //password = "kat13579";
+      //Se declara la variable huboError (bandera)
+      var huboError = 0;
+      firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
+        //Si hubo algun error, ponemos un valor referenciable en la variable huboError
+        huboError = 1;
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.error(errorMessage);
+        console.log(errorCode);
+      }).then(function () {
+        //En caso de que esté correcto el inicio de sesión y no haya errores, se dirige a la siguiente página
+        if (huboError == 0) {
+
+
+if( $$("#recuerdame").is(":checked") ){
+                   // id muy coco
+                    us = { email: email, clave: password };
+                    //storage.setItem("persona", persona); -> guardará [object Object]
+                    var usuarioAGuardar = JSON.stringify(us);
+                    // por eso convertimos el JSON en un string
+                                       
+                    storage.setItem("us", usuarioAGuardar);
+                    console.log("usuarioAGuardar: " + usuarioAGuardar);
+                    console.log("usuario: " + us.email + "password: " + us.clave);             
+    }
+
+          mainView.router.navigate('/chats/');
+        }
+      });
+
+}
+
+  // toma los valores de email y contraseña y crea la conexión con firebase para almacenarla
+    function crearUsuario() {
+      firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        if (errorCode == 'auth/weak-password') {
+          alert('Clave muy débil.');
+        } else {
+          alert(errorMessage);
+        }
+        console.log(errorMessage);
+      }).then(function(){
+
+if( $$("#recuerdame").is(":checked") ){
+                   // id muy coco
+                    us = { email: email, clave: password };
+                    //storage.setItem("persona", persona); -> guardará [object Object]
+                    var usuarioAGuardar = JSON.stringify(us);
+                    // por eso convertimos el JSON en un string
+                                       
+                    storage.setItem("us", usuarioAGuardar);
+                    console.log("usuarioAGuardar: " + usuarioAGuardar);
+                    console.log("usuario: " + us.email + "password: " + us.clave);             
+    }
+      mainView.router.navigate('/crearCuenta/');
+
+      });
+    };
+
+    function cerrarSesion(){
+      // y aca cierro sesion
+firebase.auth().signOut()
+  .then(function() {
+  // Sign-out successful.
+  })
+  .catch(function(error) {
+  // An error happened
+  });
+  // borro el local storage
+storage.clear();
+  // y redirecciono al index
+  mainView.router.navigate('/index/');
+
+app.panel.close();
+
+console.log("cerrar sesion");
+
+    }
+
+
+function panelIzq(){
+$$('#cerrarSesion').on('click', cerrarSesion);
+}

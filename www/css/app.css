@@ -468,7 +468,7 @@ padding: 0px;
 }
 
 .cajaUbicacion{
-margin-top: -5em;
+margin-top: -3.8em;
 }
 
 .botonListo{
@@ -479,7 +479,9 @@ margin-top: -5em;
 .list .item-inner{
 	padding-right: 0px;	
 }
-
+.radioAlerta{
+margin-top: -3.8em;
+}
 /**********************Si encuentro la forma uso estas fuentes***************************/
 @font-face {
 font-family: "Cocomat Light";
