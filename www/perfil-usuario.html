@@ -13,24 +13,75 @@
     </div>
     <div class="page-content fondo-degrade">
        
-INFO USER
-
-
-
-
-
-
-
-
-
-    </div>
-    <!-- Toolbar -->
-    <div class="toolbar toolbar-bottom rojo">
-        <div class="toolbar-inner">
-
-TOOLBAR USER
-
+<div class="wrapper">
+    <a href="#" data-popup=".popupAvatares" class="popup-open modalAvatares" id="modalAvatares">
+    <img src="img/min/0.png" class="av menuAvatar avatarSeleccionado avatarPerfil">
+    </a>
+<div class="list inline-labels no-hairlines-md">
+  <ul>
+    <li class="item-content item-input">
+      <div class="item-inner">
+        <div class="item-input-wrap">
+          <input type="text" value="@Usuario" placeholder="@Usuario" class="nickUsuario">
         </div>
+      </div>
+    </li>
+    <li class="item-content item-input">
+      <div class="item-inner">
+        <div class="item-input-wrap">
+          <input type="text" value="Nombre usuario" placeholder="Nombre y apellido" class="nombreUsuario">
+        </div>
+      </div>
+    </li>
+    <li class="item-content item-input">
+      <div class="item-inner">
+        <div class="item-input-wrap">
+          <input type="tel" value="+54 11 5555 5555" placeholder="+54 11 5555 5555" class="telUsuario">
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+
+
+<a href="#" class="blanco" id="actualizarPerfil">
+  <button class="row button button-large button-fill azul centrado derecha">Actualizar</button>
+</a>
+
+</div>
+
+
+
+
+    <!-- AVATARES -->
+
+                      <div class="popup popupAvatares">
+                        <div class="view">
+                          <div class="page">
+                            <div class="navbar">
+                            <div class="navbar-bg"></div>
+                              <div class="navbar-inner">
+                              <div class="title">Seleccionar avatar</div>
+                                <div class="right">
+                                <!-- Link to close popup -->
+                                <a class="link popup-close" id="vaciarAv">Cerrar</a>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="page-content">
+                            <div id="cargaAvatar">
+                            </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+
+
+
+
+
+
     </div>
     <!-- MENU USUARIOS -->
     <div class="panel panel-left panel-reveal panel-resizable panel-init" id="panelUsuarioLogeado">
@@ -45,40 +96,40 @@ TOOLBAR USER
                 </div>
             </div>
             <ul>
-                <a href="/chats/" class="panel-close">
+                <a href="/chats/" class="panel-close panelUbicacion">
                     <li class="opcionMenu">Ubicaciones
                         <img src="img/ico-ubicacion.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelGrupos">
                     <li class="opcionMenu b">Grupos
                         <img src="img/ico-grupos.png" class="icono ico-grupo">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelFavoritos">
                     <li class="opcionMenu">Favoritos
                         <img src="img/ico-fav.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelBloqueos">
                     <li class="opcionMenu b">Bloqueos
                         <img src="img/ico-bloq.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelVincular">
                     <li class="opcionMenu">Vincular
                         <img src="img/ico-vincular.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelConfiguracion">
                     <li class="opcionMenu b">Configuración
                         <img src="img/config.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelAyuda">
                     <li class="opcionMenu">Ayuda</li>
                 </a>
-                <a href="#" id="cerrarSesion">
+                <a href="#" class="panel-close cerrarSesion">
                     <li class="opcionMenu b">Cerrar sesión</li>
                 </a>
             </ul>

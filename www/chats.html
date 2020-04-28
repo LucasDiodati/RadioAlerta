@@ -21,9 +21,8 @@
                                 <div class="row no-gap al100">
                                     <!--div class="col-10 configuracion"><img src="img/config.png" class="config"></div-->
                                     <div class="col-70">
-                                        <img src="img/ubicacion.png" class="puntero">
                                         <h5 class="nombreUbicacion">Ubicación</h5>
-                                        <h3 class="tituloUbicacion">General</h3>
+                                        <h3 class="tituloUbicacion">RADIO ACTUAL</h3>
                                     </div>
                                     <div class="gral col-30">
                                         <img src="img/general_pp.png" class="imagenUbicacion">
@@ -32,30 +31,7 @@
                                 </div>
                             </div>
                             <div class="swipeout-actions-right">
-                                <a href="#" class="open-more-actions configuracion">
-                                    <img src="img/config.png" class="config">
-                                </a>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="celeste swipeout">
-                        <a href="#" class="sinCambio chatList" id="chatCasa">
-                            <div class="col-100 botonUbicacion item-content swipeout-content">
-                                <div class="row no-gap al100">
-                                    <!--div class="col-10 configuracion"><img src="img/config.png" class="config"></div-->
-                                    <div class="col-70">
-                                        <img src="img/ubicacion.png" class="puntero">
-                                        <h5 class="nombreUbicacion">Ubicación</h5>
-                                        <h3 class="tituloUbicacion">Casa</h3>
-                                    </div>
-                                    <div class="col-30">
-                                        <img src="img/ubicacion_casa.png" class="imagenUbicacion">
-                                        <h6 class="chatsNuevos">+999</h6>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swipeout-actions-right">
-                                <a href="#" class="open-more-actions configuracion">
+                                <a href="#" class="open-more-actions configuracion" id="configGeneral">
                                     <img src="img/config.png" class="config">
                                 </a>
                             </div>
@@ -66,10 +42,60 @@
             <!-- List View Accordion-->
             <div class="accordion-list list">
                 <ul>
-                    <li class="accordion-item celeste2 swipeout">
-                        <div class="col-100 botonUbicacion accordion-item-toggle item-content swipeout-content">
+<!-- UBICACIONES PERSONALIZADAS --> 
+                    <li class="accordion-item celeste" id="abrirUbicaciones">
+                        <div class="col-100 botonUbicacion accordion-item-toggle item-content">
                             <div class="row no-gap al100">
-                                <!--div class="col-10 configuracion"><img src="img/config.png" class="config"></div-->
+                                <div class="col-70">
+                                    <h3 class="tituloUbicacion solo">Mis ubicaciones</h3>
+                                </div>
+                                <div class="col-30">
+                                    <img src="img/ubicacion_casa.png" class="imagenUbicacion">
+                                    <h6 class="chatsNuevos">+999</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item-content">
+                            <div class="ubicacionesGuardadas">
+<!-- UBICACIONES - SE CARGAN DE FORMA DINAMICA - SI NO HAY SE CARGA EL MENSAJE DEFAULT -->  
+<p class="defaultUbicaciones oculto">No hay ubicaciones guardadas</p>
+
+                <div class="list media-list">
+                    <ul>
+                        <li class="swipeout ubicacionPersonalizada">
+                            <div class="swipeout-content nombrePersonalizada">
+                                Casa
+                            </div>
+                            <h6 class="nuevoChatPersonalizado">+999</h6>
+                            <div class="swipeout-actions-right">
+                                <a href="#" class="open-more-actions configuracion">
+                                <img src="img/config.png" class="config">
+                                </a>
+                            </div>
+                        </li>
+                        <li class="swipeout ubicacionPersonalizada">
+                            <div class="swipeout-content nombrePersonalizada">
+                                Trabajo
+                            </div>
+                            <h6 class="nuevoChatPersonalizado">+999</h6>
+                            <div class="swipeout-actions-right">
+                                <a href="#" class="open-more-actions configuracion">
+                                <img src="img/config.png" class="config">
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            <div class="blanco agregarUbicacion" id="agregarUbicacion">+ AGREGAR UBICACI&Oacute;N</div>
+                            </div>
+                        </div>
+                    </li>
+<!-- FIN UBICACIONES PERSONALIZADAS --> 
+<!-- GRUPOS --> 
+                    <li class="accordion-item celeste2">
+                        <div class="col-100 botonUbicacion accordion-item-toggle item-content">
+                            <div class="row no-gap al100">
                                 <div class="col-70">
                                     <h3 class="tituloUbicacion solo">Grupos</h3>
                                 </div>
@@ -80,20 +106,43 @@
                             </div>
                         </div>
                         <div class="accordion-item-content">
-                            <div class="block">
-                                <p>No hay grupos creados</p>
+                            <div class="gruposCreados">
+                <p class="defaultGrupos oculto">No hay grupos creados</p>
+                <div class="list media-list">
+                    <ul>
+                        <li class="swipeout ubicacionPersonalizada">
+                            <div class="swipeout-content nombrePersonalizada">
+                                Comunidad IT
+                            </div>
+                            <h6 class="nuevoChatPersonalizado">+999</h6>
+                            <div class="swipeout-actions-right">
+                                <a href="#" class="open-more-actions configuracion">
+                                <img src="img/config.png" class="config">
+                                </a>
+                            </div>
+                        </li>
+                        <li class="swipeout ubicacionPersonalizada">
+                            <div class="swipeout-content nombrePersonalizada">
+                                Grupo de la facu
+                            </div>
+                            <h6 class="nuevoChatPersonalizado">+999</h6>
+                            <div class="swipeout-actions-right">
+                                <a href="#" class="open-more-actions configuracion">
+                                <img src="img/config.png" class="config">
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            <div class="blanco agregarUbicacion">+ AGREGAR GRUPO</div>
                             </div>
                         </div>
-                        <div class="swipeout-actions-right">
-                            <a href="#" class="open-more-actions configuracion">
-                                <img src="img/config.png" class="config">
-                            </a>
-                        </div>
                     </li>
-                    <li class="accordion-item celeste swipeout">
-                        <div class="col-100 botonUbicacion accordion-item-toggle item-content swipeout-content">
+<!-- FIN DE GRUPOS --> 
+<!-- FAVORITOS --> 
+                    <li class="accordion-item celeste">
+                        <div class="col-100 botonUbicacion accordion-item-toggle item-content">
                             <div class="row no-gap al100">
-                                <!--div class="col-10 configuracion"><img src="img/config.png" class="config"></div-->
                                 <div class="col-70">
                                     <h3 class="tituloUbicacion solo">Favoritos</h3>
                                 </div>
@@ -103,14 +152,37 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="swipeout-actions-right">
-                            <a href="#" class="open-more-actions configuracion">
-                                <img src="img/config.png" class="config">
-                            </a>
-                        </div>
                         <div class="accordion-item-content">
-                            <div class="block">
-                                <p>No hay favoritos agregados</p>
+                            <div class="favoritosGuardados">
+                                <p class="defaultFavoritos oculto">No hay favoritos</p>
+
+                <div class="list media-list">
+                    <ul>
+                        <li class="swipeout ubicacionPersonalizada">
+                            <div class="swipeout-content nombrePersonalizada">
+                                @Lucas36
+                            </div>
+                            <h6 class="nuevoChatPersonalizado">+999</h6>
+                            <div class="swipeout-actions-right">
+                                <a href="#" class="open-more-actions configuracion">
+                                <img src="img/config.png" class="config">
+                                </a>
+                            </div>
+                        </li>
+                        <li class="swipeout ubicacionPersonalizada">
+                            <div class="swipeout-content nombrePersonalizada">
+                                @Jona_89
+                            </div>
+                            <h6 class="nuevoChatPersonalizado">+999</h6>
+                            <div class="swipeout-actions-right">
+                                <a href="#" class="open-more-actions configuracion">
+                                <img src="img/config.png" class="config">
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            <div class="blanco agregarUbicacion">+ AGREGAR FAVORITO</div>
                             </div>
                         </div>
                     </li>
@@ -118,59 +190,54 @@
             </div>
         </div>
     </div>
-    <!-- Toolbar -->
-    <div class="toolbar toolbar-bottom rojo">
-        <div class="toolbar-inner">
-            <div class="col-100 medium-50 blanco" id="agregarUbicacion">+ AGREGAR UBICACI&Oacute;N</div>
-        </div>
-    </div>
+
     <!-- MENU USUARIOS -->
     <div class="panel panel-left panel-reveal panel-resizable panel-init" id="panelUsuarioLogeado">
         <div class="menuLateral">
             <div class="menuPerfil azul row no-gap">
                 <div class="col-35">
-                    <img src="img/min/0.png" class="av menuAvatar">
+                    <img src="img/min/2.png" class="av menuAvatar">
                 </div>
                 <div class="col-65">
                     <p class="miPerfil">MI PERFIL</p>
-                    <p class="nombreMenu">@Usuario</p>
+                    <p class="nombreMenu">@LucasD</p>
                 </div>
             </div>
             <ul>
-                <a href="/chats/" class="panel-close">
+                <a href="/chats/" class="panel-close panelUbicacion">
                     <li class="opcionMenu">Ubicaciones
                         <img src="img/ico-ubicacion.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelGrupos">
                     <li class="opcionMenu b">Grupos
                         <img src="img/ico-grupos.png" class="icono ico-grupo">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelFavoritos">
                     <li class="opcionMenu">Favoritos
                         <img src="img/ico-fav.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelBloqueos">
                     <li class="opcionMenu b">Bloqueos
                         <img src="img/ico-bloq.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelVincular">
                     <li class="opcionMenu">Vincular
                         <img src="img/ico-vincular.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelConfiguracion">
                     <li class="opcionMenu b">Configuración
                         <img src="img/config.png" class="icono">
                     </li>
                 </a>
-                <a href="#" class="panel-close">
+                <a href="#" class="panel-close panelAyuda">
                     <li class="opcionMenu">Ayuda</li>
                 </a>
-                <a href="#" id="cerrarSesion">
+                <a href="#" class="panel-close cerrarSesion">
                     <li class="opcionMenu b">Cerrar sesión</li>
                 </a>
             </ul>

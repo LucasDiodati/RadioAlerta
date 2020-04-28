@@ -216,9 +216,13 @@ color: #000;
 text-align: center;
 }
 
-#agregarUbicacion{
-	padding-left: 30%;
+.agregarUbicacion{
+padding: 0px;
+margin: 0px;
 	font-weight: bold;
+	background-color: rgb(254,47,99);
+	padding: 0.8em 0px;
+	text-align: center;
 }
 
 .botonUbicacion{
@@ -256,7 +260,7 @@ display: inline;
 
 
 .imagenUbicacion{
-	width: 4.5em;
+	height: 3.5em;
 	display: inline;
 	margin-top: 1em;
 	float: right;
@@ -273,9 +277,14 @@ display: inline;
 	margin: 0px;
 }
 .nombreUbicacion{
-	display: inline;
+	display: inline-block;
 	color: #FE2F63;
+	white-space: nowrap;
 	font-size: 1.3em; 
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding-left: 0.5em;
+	width: 70vw;
 }
 
 .ubicacionChat{
@@ -291,8 +300,8 @@ display: inline;
 	text-transform: uppercase;
 }
 .tituloUbicacion.solo{
-padding-top: 0.8em;
-
+padding-top: 1em;
+vertical-align: middle;
 }
 
 .chatsNuevos{
@@ -343,6 +352,20 @@ width: 100%;
 	font-size: 1.5em;
 	margin: 0px;
 }
+
+
+.nickUsuario,.nombreUsuario,.telUsuario{
+	font-weight: bold;
+	text-align: center;
+	font-size: 1.5em;
+	padding: 1em;
+	
+}
+
+.list input[type="text"], .list .nickUsuario,.nombreUsuario,.telUsuario{
+	background-color: #fff;
+}
+
 
 .menuLateral{
 	margin: 0px;
@@ -482,6 +505,52 @@ margin-top: -3.8em;
 .radioAlerta{
 margin-top: -3.8em;
 }
+
+.wrapper{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.avatarPerfil{
+	width: 6.5em;
+	justify-content: center;
+	padding: 0px;
+	margin-top: 4em;
+}
+
+.ubicacionPersonalizada{
+	padding: 1em;
+	border-right: 0.3em solid #1DACD6;
+	margin-bottom: 0.3em;
+	border-top: 0.15em solid #1DACD6;
+}
+
+.nuevoChatPersonalizado{
+color: #FE2F63;
+font-weight: bold;
+float: right;
+font-size: 1em;
+margin: 0px;
+}
+
+
+.nombrePersonalizada{
+	padding-left: 1em;
+	font-size: 1.2em;
+	font-weight: bold;
+	display: inline;
+}
+
+#geocodificamelo{
+padding: 1em;
+margin-top: 0.5em;
+background-color: #FE2F63;
+color: #fff;
+font-weight: bold;
+
+}
+
 /**********************Si encuentro la forma uso estas fuentes***************************/
 @font-face {
 font-family: "Cocomat Light";

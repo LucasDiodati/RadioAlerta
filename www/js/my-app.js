@@ -45,13 +45,17 @@ var app = new Framework7({
   }, ]
 });
 var mainView = app.views.create('.view-main');
-var email, password, tituloChat, nombre, telefono, usuario, avatar, tipo, lat, lon, sinRuta;
+var email, password, tituloChat, nombre, telefono, usuario, avatar, tipo, lat, lon, sinRuta, map, circle, circleOutline, circleTimeout, ubicacionGeodecodificada, nombrePuntero, marker;
+var nuevaUbicacion = 0;
+var latPuntero = "";
+var lonPuntero = "";
 // variable bandera para ingresar o crear cuenta
 var nuevaCuenta = 0;
 // para la ubicacion actual y el radio por defecto
 var latUsuario=0, lonUsuario=0;
-var radioActual = 1;
+var vistaMapa = 1;
 var radioAlerta = 300;
+var radioPuntero = 300;
 // para el autologin con recordar contraseña
 var storage = window.localStorage;
 var us = { "email": "", "clave": "" };
@@ -89,8 +93,35 @@ $$(document).on('deviceready', function () {
     navigator.geolocation.getCurrentPosition(onSuccess, onError);
   } else {
     // Web page
-    lat = "-32.9467536";
-    lon = "-60.6373007"; // Peatonal cordoba y san martin
+
+// Peatonal cordoba y san martin
+// lat = "-32.9467536";
+//  lon = "-60.6373007"; 
+
+// Cordoba y corrientes
+lat = "-32.9456448";
+lon = "-60.6445155";
+
+// Formosa ciudad
+//lat = '-26.174092';
+//lon =  '-58.187608';
+
+// Gral Roca, Rio negro
+//lat = '-39.034367';
+//lon =  '-67.564946';
+
+// San Francisco
+//lat = '37.722770';
+//lon =  '-122.459206';
+
+// Casa de Los simpsons
+//lat = '42.116159';
+//lon =  '-72.517043';
+
+// Islandia
+//lat = '64.145269';
+//lon =  '-21.910129';
+
 
    console.log("LAT COMPUTADORA: " + lat + " LON COMPUTADORA: " + lon);
   }
@@ -113,29 +144,116 @@ $$(document).on('page:init', function (e) {
 /**********************************************************************************************************MAPA*/
 $$(document).on('page:init', '.page[data-name="mapa"]', function (e) {
 
-    panelIzq();
+    panelIzq(); // cargo el panel
 
-if(radioActual == 1){
+function vistaMapa2(){
+/*******************MODIFICAR RADIO DE GLOBAL*****************************/
+//Agregar el selector de rango
+  //solo puedo modificar el rango de radio
+$$('#tituloMapa').text("Modificar el radio");
+$$('.siguienteMapa').text("Radio ok!");
+$$('.siguienteMapa').on('click',function(){
+  //almaceno el radio
+// radioAlerta
+ 
+});
 $$('.cajaUbicacion').addClass('oculto');
-//Agregar el selector de rango y trackearlo con una funcion
 $$('.radioAlerta').removeClass('oculto');
-  //Si entro a ver mi radio actual solo puedo modificar el rango de radio y confirmar que es mi ubicación
+
+
+
 $$('#ubicacionAceptada').on('click',function(){
-/* guardar los cambios en el rango si lo hubiese y redireccionar a /chats/*/});
+// guardar los cambios en el rango
+actualizarPerfil("radio");
+});
 
 $$('.radioAlerta').on('range:change', function (e) {
   var range = app.range.get(e.target);
 radioAlerta = range.value;
 console.log(radioAlerta);
+map.removeObjects(map.getObjects ());
+circuloModificable();
+
+mostrarRadio(radioAlerta);
 });
+
+}
+
+function vistaMapa1(){
+/*******************SELECCIONAR RADIO*****************************/
+//Agregar el selector de rango
+  //solo puedo modificar el rango de radio
+$$('#tituloMapa').text("Elegir el radio");
+$$('.siguienteMapa').text("Radio ok!");
+$$('.siguienteMapa').on('click',function(){
+  //almaceno el radio
+//radioPuntero
+  //Aca abriria el prompt para ingresar el nombre
+//nombrePuntero
+});
+$$('#almacenarNuevaUbicacion').on('click',function(){
+//MOSTRAR = latPuntero, lonPuntero, radioPuntero, nombrePuntero;
+});
+
+$$('.cajaUbicacion').addClass('oculto');
+$$('.radioAlerta').removeClass('oculto');
+console.log("CREANDO EL CIRCULO "+latPuntero+" "+lonPuntero);
+  circuloModificable(latPuntero,lonPuntero);
+//ACA FRENO AL PUNTERO
+  marker.draggable = false;
+  console.log("draggable? : "+marker.draggable);
+
+$$('.radioAlerta').on('range:change', function (e) {
+  var range = app.range.get(e.target);
+  console.log(range);
+radioPuntero = range.value;
+console.log("Desde el selector de rango: "+radioPuntero);
+  map.removeObject(circleGroup);
+  circuloModificable(latPuntero,lonPuntero);
+  console.log("moviendo EL CIRCULO "+latPuntero+" "+lonPuntero);
+mostrarRadio(radioPuntero);
+});
+
+}
+
+function vistaMapa0(){
+/********************SELECCIONAR UBICACION************************/
+// mostrar un mapa donde se puede agregar un puntero escribiendo una dirección 
+// o clickeando el mapa y que sea arrastrable
+// click en "seleccionar radio" >> congela el puntero y me da el radio draggable con el selector de rango
+// click en Listo >> prompt "ingrese el nombre de la nueva ubicación"
+// en ok pasar los datos a >> agregarUbicacionPersonalizada(latU,lonU,nombreU,radioU);
+$$('#tituloMapa').text("Elegir ubicación");
+$$('.siguienteMapa').text("Ubicación ok!");
+$$('.siguienteMapa').on('click',function(){
+if(latPuntero !== "" && lonPuntero !== ""){
+  console.log("posicion saliendo de la vista 0: lat "+latPuntero+" - lon "+lonPuntero);
+  //elimino el puntero draggable
+  vistaMapa1();
 }else{
+  alert("Adelante, elegí tu ubicación..");
+}
+
+});
+$$('#ubicacionAceptada').on('click',function(){
+// guardar lat y lon en variables globales y pasar al selector del radio
+// avisar al selector de radio que es una nueva ubicacion
+});
 $$('.cajaUbicacion').removeClass('oculto');
 //Saco el selector y agrego el textbox de ubicaciones
 $$('.radioAlerta').addClass('oculto');
-
-//infoBubbles();
 }
-   mapaConUI();
+
+
+if(vistaMapa == 1){
+vistaMapa1();
+}else if(vistaMapa == 0){
+vistaMapa0();
+}
+
+ mapaConUI(); 
+
+
 })
 /*****************************************************************************************************UBICACION*/
 $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
@@ -155,7 +273,11 @@ $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
 /********************************************************************************************************CHATS*/
 $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
     panelIzq();
-
+    cargarChats();
+$$('#configGeneral').on('click',function(){
+  vistaMapa = 1;
+    mainView.router.navigate('/mapa/');
+});
 
   $$('#chatGeneral').on('click', function () {
     tituloChat = "Chat general";
@@ -166,12 +288,34 @@ $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
     mainView.router.navigate('/chat-general/');
   });
   cargarDatosUsuario();
+
+$$('#agregarUbicacion').on('click',function(){
+  vistaMapa = 0;
+  mainView.router.navigate('/mapa/');
+});
+
 })
 
 /***********************************************************************************************PERFIL USUARIO*/
 $$(document).on('page:init', '.page[data-name="p-us"]', function (e) {
 console.log("perfil");
     panelIzq();
+cargarDatosUsuario();
+     $$('#actualizarPerfil').on('click',function(){
+      actualizarPerfil("perfil");
+     });
+
+
+  //llamada a la carga de avatares dentro del popup dinamicamente
+  $$('#modalAvatares').on('click', cargarAvatares);
+  //llamada a vaciar el popup de los avatares cuando cierro o selecciono
+  $$('#vaciarAv').on('click', vaciarAv);
+  //llamada para seleccionar el avatar clickeado pasandole el src del clickeado a avatarSeleccionado()
+  $$('#cargaAvatar').on('mouseenter', function () {
+    $$('.av').on('click', function () {
+      avatarSeleccionado(this.src);
+    });
+  });
 
 })
 /********************************************************************************************************INDEX*/
@@ -185,16 +329,6 @@ $$(document).on('page:init', '.page[data-name="index"]', function (e) {
   $$('#iniciarSesion').on('click', function () {
     nuevaCuenta = 0;
     mainView.router.navigate('/inicioSesion/');
-  });
-
-// ESTO DESPUES LO VOY A TENER QUE PASAR A CREAR CUENTA Y CHATS YA QUE SON LINKS INTERNOS
-$$('#radioActual').on('click', function () {
-    radioActual = 1;
-    mainView.router.navigate('/mapa/');
-  });
-$$('#ubicacionesGuardadas').on('click', function () {
-    radioActual = 0;
-    mainView.router.navigate('/mapa/');
   });
 
 })
@@ -368,6 +502,7 @@ $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
 // cuando abro el popup de los avatares creo las filas y los avatares de manera dinámica
   function cargarAvatares() {
     console.log("CARGAR AVATARES");
+    vaciarAv();
     for (var i = 1; i <= filas; i++) {
       $$('#cargaAvatar').append('<div class="row fila' + fila + '">');
       for (var j = 1; j <= 4; j++) {
@@ -396,8 +531,8 @@ $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
     } else {
       $$('.abrirAvatares').removeClass('fondoBlanco');
     }
-    app.popup.close();
     vaciarAv();
+    app.popup.close();
     console.log("avatar seleccionado: " + avatar);
   };
 
@@ -422,7 +557,7 @@ function fnGuardarDP() {
   refUsuarios.doc(email).set(data);
   mainView.router.navigate('/chats/');
 }
-
+/***********************************************************************************/
 function fnIniciarDatos() {
   codido = "VIS";
   tipo = "Visitante";
@@ -470,8 +605,14 @@ function cargarDatosUsuario() {
       //console.log("Document data:", doc.data());
       //console.log("Tipo de Usuario: " + doc.data().tipo );
       var user = doc.data().usuario;
+      var nombreUsuario = doc.data().nombre;
+      var telUsuario = doc.data().telefono;
       $$('.nombreMenu').text("@" + user);
       $$('.menuAvatar').attr("src", doc.data().avatar);
+      $$('.nickUsuario').val(user);
+      $$('.nombreUsuario').val(nombreUsuario);
+      $$('.telUsuario').val(telUsuario);
+      var radioAlerta = doc.data().radioActual;
       tipoUsuario = doc.data().tipo;
       if (tipoUsuario == "VIS") {
         // carga los chats de usuario
@@ -490,6 +631,84 @@ function cargarDatosUsuario() {
 /**********************FIN DE HACER LA QUERY A LA BD Y CARGAR TODA LA INFO DE USUARIO AL PANEL*******************/
 
 
+/*****************************************ACTUALIZAR LA INFO DE USUARIO *****************************************/
+function actualizarPerfil(clave){
+
+
+refUsuarios.doc(email).get().then(function (doc) {
+    if (doc.exists) {
+
+
+     var nickModificado =  $$('.nickUsuario').val();
+     var nombreModificado =  $$('.nombreUsuario').val();
+     var telModificado =  $$('.telUsuario').val();
+
+//console.log(nickModificado);
+//sanitizarDatos(nickModificado);
+//console.log(nickModificado);
+
+if (clave == "perfil") {
+
+if($$('.avatarPerfil').hasClass('elegido')){
+
+  var avatarLimpio = sinRuta[sinRuta.length - 1];
+  console.log("avatar limpio: " + avatarLimpio);
+  // clave: variable de datos
+
+  var data = {
+    nombre: nombreModificado,
+    telefono: telModificado,
+    usuario: nickModificado,
+    avatar: "img/min/" + avatarLimpio,
+  }
+}else{
+  var data = {
+    nombre: nombreModificado,
+    telefono: telModificado,
+    usuario: nickModificado,
+}
+}
+
+
+}else if(clave = "radio"){
+
+var data = {
+radioActual: radioAlerta,
+latitud: lat,
+longitud: lon,
+
+}
+
+};
+
+
+            refUsuarios.doc(email).update
+            (data)
+            .then(function() {
+            console.log("actualizado ok");
+          cargarDatosUsuario(); 
+            })
+            .catch(function(error) {
+            console.log("Error: " + error);
+            });    
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  }).catch(function (error) {
+    console.log("Error getting document:", error);
+  });
+
+}
+
+
+/************************************ FIN ACTUALIZAR LA INFO DE USUARIO *****************************************/
+/************************************* FUNCION PARA SANITIZAR LOS VALORES QUE SE CARGAN EN LA DB*****************/
+function sanitizarDatos(d){
+var sano = d.replace(/[0-9`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,'');
+return sano;
+}
+/***********************************FIN SANITIZADOR*************************************************************/
 /******************************************* MAPA DE HERE CON UI ************************************************/
 // Aca: https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/map-controls-ui.html
 function mapaConUI(){
@@ -502,7 +721,7 @@ function mapaConUI(){
     var defaultLayers = platform.createDefaultLayers();
 
     // Instantiate the map:
-    var map = new H.Map(
+    map = new H.Map(
         document.getElementById('mapContainer'),
         defaultLayers.vector.normal.map,
         {
@@ -525,21 +744,46 @@ zoom.setAlignment('top-left');
 scalebar.setVisibility(false); 
 
 
-if(radioActual == 1){
+if(vistaMapa == 1){
 /*AGREGO UN CIRCULO EDITABLE SOBRE LA POSICION ACTUAL*/
 circuloModificable();
-}else{
-$$('#ubicacionAceptada').on('click',geocodificador);
+}else if(vistaMapa == 0){
+console.log(vistaMapa);  
+$$('#geocodificamelo').on('click',function(){
+var busqueda = $$('#busquedaUbicacion').val();
+geocodificador(busqueda);
+console.log(busqueda);
+});
 /*AGREGO UN CIRCULO COMUN*/
-circuloComun();
+//circuloComun();
 // Agrego burbujas de texto
-bubblesTexto();
+//bubblesTexto();
 }
+//////////////////////////////////////////////ESTO NO ANDA
+//setUpClickListener(map);
+/**************TRACKEAR EL CLICK SOBRE EL MAPA*********************/
+function setUpClickListener(map) {
+  // Attach an event listener to map display
+  // obtain the coordinates and display in an alert box.
+  map.addEventListener('click', function (evt) {
+    var coord = map.screenToGeo(evt.currentPointer.viewportX,
+            evt.currentPointer.viewportY);
 
 
+    console.log('Clicked at ' + Math.abs(coord.lat.toFixed(4)) +
+        ((coord.lat > 0) ? 'N' : 'S') +
+        ' ' + Math.abs(coord.lng.toFixed(4)) +
+         ((coord.lng > 0) ? 'E' : 'W'));
 
+/*
+coordsG = {lat: coord.lat, lng: coord.lng};
+// Add the click event listener.
+addDraggableMarker(map, behavior);
 
-
+*/
+  });
+}
+/************FIN DE TRACKEAR EL CLICK SOBRE EL MAPA******************/
 /*****************FUNCION INFO BUBBLES CON TEXTO ********************/
 function bubblesTexto(){
 
@@ -570,10 +814,9 @@ function openBubble(position, text){
 }
 
 /********************FIN INFO BUBBLES CON TEXTO**********************/
+var coordsG;
 /************************GEOCODIFICACION*****************************/
-function geocodificador(){
-
-var busqueda = $$('#busquedaUbicacion').val();
+function geocodificador(busqueda){
 
 // GEOCODER ES UN SERVICIO DE REST
 // Utilizar API Key de REST
@@ -586,22 +829,94 @@ app.request.json(url, {
     gen: '9'
   }, function (data) {
      // hacer algo con data
-     console.log("geo:" + JSON.stringify(data));
+     console.log(data);
 
     // POSICION GEOCODIFICADA de la direccion
     latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
     longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
     //alert(latitud + " / " + longitud);
-        coordsG = {lat: latitud, lng: longitud},
-        markerG = new H.map.Marker(coordsG);
-        map.addObject(markerG);
+
+    if(vistaMapa = 1){
+      latPuntero = latitud;
+      lonPuntero = longitud;
+      console.log("Se guardo desde la geolocalozacion "+latPuntero+" "+lonPuntero);
+              coordsG = {lat: latPuntero, lng: lonPuntero};
+    }else{
+        coordsG = {lat: latitud, lng: longitud};
+}
+
+// Add the click event listener.
+
+addDraggableMarker(map, behavior);
+
+     //   markerG = new H.map.Marker(coordsG);
+     //   map.addObject(markerG);
     //     alert(JSON.stringify(data));
 
 
-}, function(xhr, status) { console.log("error geo: "+status); }   );
+}, function(xhr, status) { console.log("error geocodificador: "+status); }   );
 
 };
 /***********************FIN GEOCODIFICACION*****************************/
+/***********************PUNTERO ARRASTRABLE*****************************/
+// https://developer.here.com/documentation/examples/maps-js/markers/draggable-marker
+function addDraggableMarker(map, behavior){
+
+// Como quiero un solo puntero elimino el anterior
+map.removeObjects(map.getObjects(marker));
+
+  marker = new H.map.Marker(coordsG, {
+    // mark the object as volatile for the smooth dragging
+    volatility: true
+  });
+  // Ensure that the marker can receive drag events
+  marker.draggable = true;
+  map.addObject(marker);
+
+  // disable the default draggability of the underlying map
+  // and calculate the offset between mouse and target's position
+  // when starting to drag a marker object:
+  map.addEventListener('dragstart', function(ev) {
+    var target = ev.target,
+        pointer = ev.currentPointer;
+    if (target instanceof H.map.Marker) {
+      var targetPosition = map.geoToScreen(target.getGeometry());
+      target['offset'] = new H.math.Point(pointer.viewportX - targetPosition.x, pointer.viewportY - targetPosition.y);
+      behavior.disable();
+    }
+  }, false);
+
+
+  // re-enable the default draggability of the underlying map
+  // when dragging has completed
+  map.addEventListener('dragend', function(ev) {
+    var target = ev.target;
+    if (target instanceof H.map.Marker) {
+      behavior.enable();
+    }
+
+if(vistaMapa == 0){
+latPuntero = target.b.lat;
+lonPuntero = target.b.lng;
+}
+
+console.log("DESDE EL PUNTERO DRAGGABLE: "+latPuntero+" "+lonPuntero);
+geodecodificador(latPuntero,lonPuntero);
+
+  }, false);
+
+  // Listen to the drag event and move the position of the marker
+  // as necessary
+   map.addEventListener('drag', function(ev) {
+    var target = ev.target,
+        pointer = ev.currentPointer;
+    if (target instanceof H.map.Marker) {
+      target.setGeometry(map.screenToGeo(pointer.viewportX - target['offset'].x, pointer.viewportY - target['offset'].y));
+    }
+  }, false);
+};
+
+/***********************PUNTERO ARRASTRABLE*****************************/
 /******************FUNCION INFO BUBBLES EN GRUPOS***********************/
 //Esto lo paso Jorge para que podamos agrupar los marcadores
 
@@ -641,27 +956,55 @@ map.addObject(circle);
 }
 /***********************FIN CIRCULO COMUN *****************************/
 
-/*******************FUNCION DRAGGABLE CIRCLE **************************/
-// Aca https://developer.here.com/documentation/examples/maps-js/resizable-geoshapes/resizable-circle
-function circuloModificable(){
+}
 
+/********************************** FIN DE MAPA DE HERE CON UI ***********************************************/
+/********************************************GEO DECODIFICADOR ***********************************************/
+function geodecodificador(latit,longit){
+// Documentacion: https://developer.here.com/documentation/geocoding-search-api/dev_guide/topics-api/code-revgeocode.html
+// Ejemplo: https://developer.here.com/documentation/examples/rest/geocoder/reverse-geocode
+
+url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json';
+app.request.json(url, {
+    prox: latit+','+longit,
+    mode: 'retrieveAddresses',
+    maxresults: '1',
+    gen: '9',
+    apiKey: 'Gz-JLm7EYGkMQZ2XuuU8feRF-CQYjqVUDFqtICVtQwU'
+  }, function (data) {
+     // hacer algo con data
+     console.log(data);
+
+    console.log(data.Response.View[0].Result[0].Location.Address.Label);
+
+var ubicacionGeodecodificada = data.Response.View[0].Result[0].Location.Address.Label;
+$$('.nombreUbicacion').text(ubicacionGeodecodificada);
+$$('#busquedaUbicacion').val(ubicacionGeodecodificada);
+}, function(xhr, status) { console.log("error geodecodificador: "+status); }   );
+
+
+}
+/********************************************GEO DECODIFICADOR ***********************************************/
+/****************************************FUNCION DRAGGABLE CIRCLE ********************************************/
+// Aca https://developer.here.com/documentation/examples/maps-js/resizable-geoshapes/resizable-circle
+function circuloModificable(latCirculo,lonCirculo){
 /**
  * Adds resizable geo shapes to map
  *
  * @param {H.Map} map                      A HERE Map instance within the application
  */
 function createResizableCircle(map) {
-  var circle = new H.map.Circle(
-        {lat: lat, lng: lon},
+     circle = new H.map.Circle(
+        {lat: latCirculo, lng: lonCirculo},
         radioAlerta,
         {
-          style: {fillColor: 'rgba(250, 250, 0, 0.7)', lineWidth: 0}
+          style: {fillColor: 'rgba(120,184,230, 0.7)', lineWidth: 0}
         }
       ),
       circleOutline = new H.map.Polyline(
         circle.getGeometry().getExterior(),
         {
-          style: {lineWidth: 6, strokeColor: 'rgba(255, 0, 0, 0)'}
+          style: {lineWidth: 8, strokeColor: 'rgba(42,82,190, 0)'}
         }
       ),
       circleGroup = new H.map.Group({
@@ -686,7 +1029,7 @@ function createResizableCircle(map) {
   circleGroup.addEventListener('pointerenter', function(evt) {
     var currentStyle = circleOutline.getStyle(),
         newStyle = currentStyle.getCopy({
-          strokeColor: 'rgb(255, 0, 0)'
+          strokeColor: 'rgb(42,82,190)'
         });
 
     if (circleTimeout) {
@@ -702,7 +1045,7 @@ function createResizableCircle(map) {
   circleGroup.addEventListener('pointerleave', function(evt) {
     var currentStyle = circleOutline.getStyle(),
         newStyle = currentStyle.getCopy({
-          strokeColor: 'rgba(255, 0, 0, 0)'
+          strokeColor: 'rgba(42,82,190, 0)'
         }),
         timeout = (evt.currentPointer.type == 'touch') ? 1000 : 0;
 
@@ -728,10 +1071,19 @@ function createResizableCircle(map) {
 
     // if resizing is alloved, set the circle's radius
     if (evt.target instanceof H.map.Polyline) {
-      circle.setRadius(distanceFromCenterInMeters);
-      radioAlerta = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
-      console.log(radioAlerta);
 
+if(radioAlerta>=100 && radioAlerta<=800){
+
+      circle.setRadius(distanceFromCenterInMeters);
+     if(vistaMapa = 1){
+      radioPuntero = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
+        console.log(radioPuntero);
+                mostrarRadio(radioPuntero);
+     }else{
+      radioAlerta = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
+        console.log(radioAlerta);
+        mostrarRadio(radioAlerta);
+          }
       // use circle's updated geometry for outline polyline
       var outlineLinestring = circle.getGeometry().getExterior();
       // extract first point of the outline LineString and push it to the end, so the outline has a closed geometry
@@ -740,6 +1092,8 @@ function createResizableCircle(map) {
 
       // prevent event from bubling, so map doesn't receive this event and doesn't pan
       evt.stopPropagation();
+}
+
     }
   }, true);
 
@@ -754,14 +1108,7 @@ function round5(x)
 }
 
 }
-/************************FIN DE CIRCULO DRAGGABLE***************************/
-
-}
-
-/********************************** FIN DE MAPA DE HERE CON UI ***********************************************/
-
-
-
+/**************************************FIN DE CIRCULO DRAGGABLE**********************************************/
 /*************************************MAPA DE JORGE *********************************************************/
 function mapaDeJorge(){
 
@@ -781,7 +1128,7 @@ function mapaDeJorge(){
       var maptypes = platform.createDefaultLayers();
 
       // Instantiate (and display) a map object:
-      var map = new H.Map(
+       map = new H.Map(
         document.getElementById('mapContainer'),
         maptypes.vector.normal.map,
         {
@@ -830,14 +1177,17 @@ app.request.json(url, {
 
 
     // POSICION GEOCODIFICADA de la direccion
+
     latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
     longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
+    
+
     //alert(latitud + " / " + longitud);
         coordsG = {lat: latitud, lng: longitud},
         markerG = new H.map.Marker(coordsG);
         map.addObject(markerG);
     //     alert(JSON.stringify(data));
-    }, function(xhr, status) { console.log("error geo: "+status); }   );
+    }, function(xhr, status) { console.log("error mapaDeJorge: "+status); }   );
 
 }
 
@@ -899,7 +1249,7 @@ function consultarLocalStorage(){
     };
 
 /*****************************FIN AUTO LOGIN CON SESSION STORAGE ***************************************/
-
+/***************************** LOGIN CON EMAIL AUTENTICADO**********************************************/
 function loginConEmail(){
 
 
@@ -939,7 +1289,8 @@ if( $$("#recuerdame").is(":checked") ){
       });
 
 }
-
+/*************************FIN LOGIN CON EMAIL AUTENTICADO**********************************************/
+/**************************************CREAR USUARIO **************************************************/
   // toma los valores de email y contraseña y crea la conexión con firebase para almacenarla
     function crearUsuario() {
       firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
@@ -969,7 +1320,8 @@ if( $$("#recuerdame").is(":checked") ){
 
       });
     };
-
+/***********************************FIN CREAR USUARIO **************************************************/
+/**************************************CERRAR SESION ***************************************************/
     function cerrarSesion(){
       // y aca cierro sesion
 firebase.auth().signOut()
@@ -989,8 +1341,75 @@ app.panel.close();
 console.log("cerrar sesion");
 
     }
-
-
+/********************************** FIN CERRAR SESION ***************************************************/
+/********************************** FUNCIONES DEL PANEL IZQUIERDO ***************************************/
 function panelIzq(){
-$$('#cerrarSesion').on('click', cerrarSesion);
+$$('.cerrarSesion').on('click', cerrarSesion);
+$$('.miPerfil,.nombreMenu,.menuAvatar').on('click', function(){  mainView.router.navigate('/p-us/'); app.panel.close();});
+$$('.panelUbicacion').on('click',function(){
+ mainView.router.navigate('/chats/');
+ // el app.accordion.open no funciona
+app.accordion.open('<li class="accordion-item celeste swipeout" id="abrirUbicaciones">');
+  app.panel.close();
+});
+$$('.panelGrupos').on('click',function(){
+ mainView.router.navigate('/chats/');
+  app.panel.close();
+});
+$$('.panelFavoritos').on('click',function(){
+ mainView.router.navigate('/chats/');
+  app.panel.close();
+});
+$$('.panelBloqueos').on('click',function(){
+  app.panel.close();
+});
+$$('.panelVincular').on('click',function(){
+  app.panel.close();
+});
+$$('.panelConfiguracion').on('click',function(){
+  app.panel.close();
+});
+$$('.panelAyuda').on('click',function(){
+ mainView.router.navigate('/chats/');
+  app.panel.close();
+});
+
+
 }
+/*******************************FIN FUNCIONES DEL PANEL IZQUIERDO ***************************************/
+/***************************FUNCION QUE MUESTRA EL TOAST DEL RADIO SOBRE EL MAPA*************************/
+function mostrarRadio(radio){
+
+var f7icon = "dot_radiowaves_left_right";
+var material = "wifi_tethering";
+console.log("Desde el toast: radio "+radio);
+
+// Create toast with icon
+var toastIcon = app.toast.create({
+  icon: app.theme === 'ios' ? '<i class="f7-icons">'+f7icon+'</i>' : '<i class="material-icons">'+material+'</i>',
+  text: radio+' mts',
+  position: 'center',
+  closeTimeout: 2000,
+});
+toastIcon.open();
+}
+/***********************FIN FUNCION QUE MUESTRA EL TOAST DEL RADIO SOBRE EL MAPA*************************/
+/**************************************CARGAR LOS CHATS**************************************************/
+function cargarChats(){
+geodecodificador(lat,lon);
+
+
+
+};
+/**********************************FIN CARGAR LOS CHATS**************************************************/
+function agregarUbicacionPersonalizada(latU,lonU,nombreU,radioU){
+
+  var data = {
+        nombre: nombreU,
+        latitud: latU,
+        longitud: lonU,
+        radio: radioU
+  };
+  refUsuarios.doc(email).collection(ubicacionesPersonales).doc(nombreU).set(data);
+};
+
