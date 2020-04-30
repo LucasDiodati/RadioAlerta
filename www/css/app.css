@@ -362,8 +362,12 @@ width: 100%;
 	
 }
 
-.list input[type="text"], .list .nickUsuario,.nombreUsuario,.telUsuario{
-	background-color: #fff;
+.list input[type="text"].nickUsuario, .nombreUsuario, .telUsuario{
+	 background-image: linear-gradient(to right, rgba(255,255,255,0) , rgba(255,255,255,1.0) , rgba(255,255,255,0));
+}
+
+.list input[type="tel"].nickUsuario, .nombreUsuario, .telUsuario{
+	 background-image: linear-gradient(to right, rgba(255,255,255,0) , rgba(255,255,255,1.0) , rgba(255,255,255,0));
 }
 
 
@@ -479,6 +483,10 @@ padding: 0px;
 	color: #FFF;
 }
 
+.messages{
+	min-height: 90vh;
+}
+
 .ayudaCentrado{
 	padding-left: 45vw;
 }
@@ -549,6 +557,14 @@ background-color: #FE2F63;
 color: #fff;
 font-weight: bold;
 
+}
+.defaultUbicaciones{
+font-weight: bold;
+text-align: center;
+color: #FE2F63;
+margin: 0px;
+padding: 0.2em;
+background-color: rgba(254,47,99,0.2);
 }
 
 /**********************Si encuentro la forma uso estas fuentes***************************/

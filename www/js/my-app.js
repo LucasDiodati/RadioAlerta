@@ -45,10 +45,13 @@ var app = new Framework7({
   }, ]
 });
 var mainView = app.views.create('.view-main');
-var email, password, tituloChat, nombre, telefono, usuario, avatar, tipo, lat, lon, sinRuta, map, circle, circleOutline, circleTimeout, ubicacionGeodecodificada, nombrePuntero, marker;
+var email, password, tituloChat, nombre, telefono, usuario, avatar, tipo, lat, lon, sinRuta, map, circle, circleOutline, circleTimeout, ubicacionGeodecodificada, nombrePuntero, marker, cargar;
+var hayUbicaciones = 0;
 var nuevaUbicacion = 0;
 var latPuntero = "";
 var lonPuntero = "";
+var usuario = "no cargo el usuario";
+
 // variable bandera para ingresar o crear cuenta
 var nuevaCuenta = 0;
 // para la ubicacion actual y el radio por defecto
@@ -56,12 +59,13 @@ var latUsuario=0, lonUsuario=0;
 var vistaMapa = 1;
 var radioAlerta = 300;
 var radioPuntero = 300;
+var login = 0;
 // para el autologin con recordar contraseña
 var storage = window.localStorage;
 var us = { "email": "", "clave": "" };
 var usuarioLocal ="", claveLocal = "";
 // BASE DE DATOS
-var db, refUsuarios, refTiposUsuarios;
+var db, refUsuarios, refTiposUsuarios, refUbicaciones, refMensajes, refChats;
 //AVATARES declaro estas variables por si el dia de mañana quiero agregar mas avatares
   var filas = 15;
   var fila = 1;
@@ -129,10 +133,14 @@ lon = "-60.6445155";
   db = firebase.firestore();
   refUsuarios = db.collection("USUARIOS");
   refTiposUsuarios = db.collection("TIPOS_USUARIOS");
+  refMensajes = db.collection("MENSAJES");
+  refChats = db.collection("CHATS");
+
   var iniciarDatos = 0;
   if (iniciarDatos == 1) {
     fnIniciarDatos();
   }
+                  
 
 });
 
@@ -187,13 +195,21 @@ $$('#tituloMapa').text("Elegir el radio");
 $$('.siguienteMapa').text("Radio ok!");
 $$('.siguienteMapa').on('click',function(){
   //almaceno el radio
-//radioPuntero
-  //Aca abriria el prompt para ingresar el nombre
-//nombrePuntero
+console.log("radio del puntero: "+radioPuntero);
+console.log("posicion del puntero: lat"+latPuntero+" lon puntero"+lonPuntero);
+  //Aca el prompt para ingresar el nombre
+  app.dialog.prompt('Ingrese un nombre de ubicación:','Nueva ubicación', function (name) {
+    nombrePuntero = name;
+  guardarUbicac();
+  });
+
 });
-$$('#almacenarNuevaUbicacion').on('click',function(){
-//MOSTRAR = latPuntero, lonPuntero, radioPuntero, nombrePuntero;
-});
+
+function guardarUbicac(){
+agregarUbicacionPersonalizada(latPuntero,lonPuntero,nombrePuntero,radioPuntero);
+    mainView.router.navigate('/chats/');
+};
+
 
 $$('.cajaUbicacion').addClass('oculto');
 $$('.radioAlerta').removeClass('oculto');
@@ -269,31 +285,6 @@ $$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
     mainView.router.navigate('/chats/');
   });
    mapaConUI();
-})
-/********************************************************************************************************CHATS*/
-$$(document).on('page:init', '.page[data-name="chats"]', function (e) {
-    panelIzq();
-    cargarChats();
-$$('#configGeneral').on('click',function(){
-  vistaMapa = 1;
-    mainView.router.navigate('/mapa/');
-});
-
-  $$('#chatGeneral').on('click', function () {
-    tituloChat = "Chat general";
-    mainView.router.navigate('/chat-general/');
-  });
-  $$('#chatCasa').on('click', function () {
-    tituloChat = "Casa";
-    mainView.router.navigate('/chat-general/');
-  });
-  cargarDatosUsuario();
-
-$$('#agregarUbicacion').on('click',function(){
-  vistaMapa = 0;
-  mainView.router.navigate('/mapa/');
-});
-
 })
 
 /***********************************************************************************************PERFIL USUARIO*/
@@ -382,12 +373,45 @@ $$(document).on('page:init', '.page[data-name="crearCuenta"]', function (e) {
   });
   
 })
+/********************************************************************************************************CHATS*/
+$$(document).on('page:init', '.page[data-name="chats"]', function (e) {
+    panelIzq();
+    cargarInfoUsuario(email);
+    cargarChats();
+$$('#configGeneral').on('click',function(){
+  vistaMapa = 1;
+    mainView.router.navigate('/mapa/');
+});
+
+  $$('#chatGeneral').on('click', function () {
+    tituloChat = "Chat general";
+    cargar = "global";
+    mainView.router.navigate('/chat-general/');
+  });
+  $$('#chatCasa').on('click', function () {
+    tituloChat = "Casa";
+    mainView.router.navigate('/chat-general/');
+  });
+  cargarDatosUsuario();
+
+$$('#agregarUbicacion').on('click',function(){
+  vistaMapa = 0;
+  mainView.router.navigate('/mapa/');
+});
+
+})
 /*************************************************************************************************CHAT GENERAL*/
 $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
+
     panelIzq();
+   // setInterval(guardarUltimaConexion, 10000);
+     
 
-
+var ultimaConexion = "hoy";
   $$('#tituloChat').text(tituloChat);
+  $$('.send-link').on('click', enviarMensaje);
+
+
   // Init Messages
   var messages = app.messages.create({
     el: '.messages',
@@ -434,69 +458,180 @@ $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
   });
   // Response flag
   var responseInProgress = false;
+
+  cargarMensajes();
+
+function nuevoMensaje(mensaje,dest){
+console.log(mensaje);
+// voy a guardar: con add() no uso clave para almacenarlos
+// texto del mensaje, o imagen si hago a tiempo
+// remitente (email)
+// timestamp (fecha y hora del mensaje)
+// lat y lon (esto lo voy a usar para geoubicar el mensaje)
+// destinatario (si va al principal es "global", sino asocio el mensaje a email (fav) o id (grupo o ubicacion pers))
+var timestamp = Date.now();
+var data = {
+  mensaje: mensaje,
+  remitente: email,
+  fecha: timestamp,
+  latitud: lat,
+  longitud: lon,
+  destinatario: dest
+};
+
+refMensajes.add(data)
+.then(function(docRef){
+  console.log("ok con el ID: " + docRef.id);
+})
+.catch(function(error){
+  console.log("Error enviando el mensaje: " + error);
+});
+
+
+};
+
+function cargarMensajes(){
+// Obtengo los datos de fecha y hora del mensaje de acuerdo al timestamp que le pase
+//   alert(d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear() 
+//       +" - "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
+
+// dependiendo del parametro pasado traigo los del global, del personalizado, del grupo o favorito
+if(cargar == "global"){
+refUsuarios.doc(email).get()
+.then(function(doc){ultimaConexion = doc.data().ultimaConexion;})
+.catch(function(error){ console.log("Error en la consulta: ", error);});
+  $$('.ultimaConexion').text(ultimaConexion);
+
+refMensajes.where("destinatario" , "==" , "global").orderBy("fecha","asc").get()
+.then(function(querySnapshot){
+  querySnapshot.forEach(function(doc){
+var d = new Date(doc.data().fecha);
+var m = doc.data().mensaje;
+var r = doc.data().remitente;
+var la = doc.data().latitud;
+var lo = doc.data().longitud;
+if(r == email){
+  // mensaje enviado
+   recibirMiMensaje(usuario,m,sinRuta)
+}else{ 
+console.log("Desde la consulta te digo el email: "+r);
+  var rUsuario = "";
+  var rAvatar = "";
+  //traer nick y avatar del remitente
+refUsuarios.doc(r).get()
+.then(function(doc){rUsuario = doc.data().usuario; console.log(doc.data().usuario); rAvatar = doc.data().avatar;})
+.catch(function(error){ console.log("Error en la consulta: ", error);});
+  // mensaje recibido
+recibirMensaje(rUsuario,m,rAvatar)
+}
+
+ console.log("msg: "+doc.data().mensaje+" el: "+d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" a las "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
+
+});
+})
+.catch(function(error){
+  console.log("Error en la consulta: ", error);
+});
+
+}
+
+
+
+};
+
+
+function enviarMensaje(){
   // Send Message
-  $$('.send-link').on('click', function () {
-    var text = messagebar.getValue().replace(/\n/g, '<br>').trim();
+    var mensaje = messagebar.getValue().replace(/\n/g, '<br>').trim();
     // return if empty message
-    if (!text.length) return;
+    if (!mensaje.length) return;
     // Clear area
     messagebar.clear();
     // Return focus to area
     messagebar.focus();
     // Add message to messages
+
     messages.addMessage({
-      text: text,
+      text: mensaje,
+      type: 'sent',
+      name: usuario,
+      avatar: sinRuta
     });
+    nuevoMensaje(mensaje,"global");
     if (responseInProgress) return;
-    // Receive dummy message
-    receiveMessage();
-  });
+  
+};
 
-  // Dummy response
-  var answers = ['Yes!', 'No', 'Hm...', 'I am not sure', 'And what about you?', 'May be ;)', 'Lorem ipsum dolor sit amet, consectetur', 'What?', 'Are you sure?', 'Of course', 'Need to think about it', 'Amazing!!!']
-  var people = [{
-    name: 'Kate Johnson',
-    avatar: 'https://cdn.framework7.io/placeholder/people-100x100-9.jpg'
-  }, {
-    name: 'Blue Ninja',
-    avatar: 'https://cdn.framework7.io/placeholder/people-100x100-7.jpg'
-  }];
+  function recibirMiMensaje(usuario,m,sinRuta){
+    messages.addMessage({
+      text: m,
+      type: 'sent',
+      name: usuario,
+      avatar: sinRuta
+    });
+  };
 
-  function receiveMessage() {
+
+
+  function recibirMensaje(remitente,mensaje,avatar) {
     responseInProgress = true;
     setTimeout(function () {
       // Get random answer and random person
-      var answer = answers[Math.floor(Math.random() * answers.length)];
-      var person = people[Math.floor(Math.random() * people.length)];
+    /*  var answer = answers[Math.floor(Math.random() * answers.length)];
+      var person = people[Math.floor(Math.random() * people.length)];*/
       // Show typing indicator
       messages.showTyping({
-        header: person.name + ' está escribiendo',
-        avatar: person.avatar
+        header: remitente + ' está escribiendo',
+        avatar: avatar
       });
       setTimeout(function () {
         // Add received dummy message
-        messages.addMessage({
-          text: answer,
-          type: 'received',
-          name: person.name,
-          avatar: person.avatar
-        });
+    messages.addMessage({
+      text: mensaje,
+      type: 'received',
+      name: remitente,
+      avatar: avatar
+    });
         // Hide typing indicator
         messages.hideTyping();
         responseInProgress = false;
       }, 4000);
     }, 1000);
-  }
+  };
 
 
 })
 
-
+/***************************************************************************************************************/
 /***************************************************************************************************************/
 /***************************************************************************************************************/
 /***********************************************FUNCIONES*******************************************************/
 /***************************************************************************************************************/
 /***************************************************************************************************************/
+/***************************************************************************************************************/
+
+function guardarUltimaConexion(){
+var guardarConexion = Date.now();
+
+if (cargar == "global") {
+//Si es el chat global guardo un timestamp de ultima conexion en el perfil del usuario
+  var data = {
+    ultimaConexion: guardarConexion
+  }
+  refUbicaciones.doc("GLOBAL").set(data);
+
+}
+
+}
+
+
+
+
+
+
+
+
+
 
 
 // cuando abro el popup de los avatares creo las filas y los avatares de manera dinámica
@@ -555,6 +690,7 @@ function fnGuardarDP() {
     tipo: "VIS"
   }
   refUsuarios.doc(email).set(data);
+  login = 1;
   mainView.router.navigate('/chats/');
 }
 /***********************************************************************************/
@@ -1204,7 +1340,6 @@ function consultarLocalStorage(){
         if (usuarioGuardado.email == ""){
           console.log("no hay datos en el local");
         } else {
-        
         console.log(" usuarioguardado.email: " + usuarioGuardado.email);
         console.log(" usuarioguardado.clave: " + usuarioGuardado.clave);
   //pasar los datos del json a dos variables independientes
@@ -1215,6 +1350,7 @@ function consultarLocalStorage(){
         
         if ( usuarioGuardado != null){
           LoguearseConLocal(email, password);
+          // Tambien voy a cargar la info basica del usuario en variables locales
         };
       };
     };
@@ -1241,12 +1377,22 @@ function consultarLocalStorage(){
                 if(huboError == 0){
                   console.log("te logueaste");
                   cargarDatosUsuario();
-          mainView.router.navigate('/p-us/');
+          mainView.router.navigate('/chats/');
 
                 }
             }); 
       
     };
+
+    function cargarInfoUsuario(email){
+ refUsuarios.doc(email).get().then(function (doc) {
+  usuario = doc.data().usuario;
+sinRuta = doc.data().avatar;
+ultimaConexion  = doc.data().ultimaConexion;
+})
+    .catch(function(error){ console.log("Error en la consulta: ", error);});
+
+    }
 
 /*****************************FIN AUTO LOGIN CON SESSION STORAGE ***************************************/
 /***************************** LOGIN CON EMAIL AUTENTICADO**********************************************/
@@ -1283,7 +1429,7 @@ if( $$("#recuerdame").is(":checked") ){
                     console.log("usuarioAGuardar: " + usuarioAGuardar);
                     console.log("usuario: " + us.email + "password: " + us.clave);             
     }
-
+    login = 1;
           mainView.router.navigate('/chats/');
         }
       });
@@ -1335,7 +1481,9 @@ firebase.auth().signOut()
 storage.clear();
   // y redirecciono al index
   mainView.router.navigate('/index/');
-
+login = 0;
+email = "";
+contraseña = "";
 app.panel.close();
 
 console.log("cerrar sesion");
@@ -1397,19 +1545,50 @@ toastIcon.open();
 /**************************************CARGAR LOS CHATS**************************************************/
 function cargarChats(){
 geodecodificador(lat,lon);
+refUbicaciones = refUsuarios.doc(email).collection('UBICACIONES');
+var hayUbicaciones = 0;
+refUbicaciones.get()
+.then(function(querySnapshot){
+  querySnapshot.forEach(function(doc){
+  console.log("data: "+doc.data().nombre);
+$$('#ubicacionesFirestore').append('<li class="swipeout ubicacionPersonalizada"><div class="swipeout-content nombrePersonalizada">'+doc.data().nombre+'</div><h6 class="nuevoChatPersonalizado">+999</h6><div class="swipeout-actions-right"><a href="#" class="open-more-actions configuracion"><img src="img/config.png" class="config"></a></div></li>');
+hayUbicaciones++;
+quitarAlerta();
+});
+})
+.catch(function(error){
+  console.log("Error en la consulta: ", error);
+});
 
+function quitarAlerta(){
+  if(hayUbicaciones !== 0){
+    $$('.defaultUbicaciones').addClass('oculto');
+
+}else{
+  if($$('.defaultUbicaciones').hasClass('oculto')){
+   console.log("Clase oculto ya agregada"); 
+  }else{
+    console.log("NO HAY REGISTROS");
+    $$('.defaultUbicaciones').removeClass('oculto');
+}
+};
+};
+quitarAlerta();
 
 
 };
 /**********************************FIN CARGAR LOS CHATS**************************************************/
 function agregarUbicacionPersonalizada(latU,lonU,nombreU,radioU){
-
+var n = nombreU;
   var data = {
         nombre: nombreU,
         latitud: latU,
         longitud: lonU,
         radio: radioU
   };
-  refUsuarios.doc(email).collection(ubicacionesPersonales).doc(nombreU).set(data);
+
+console.log(data);
+
+  refUbicaciones.doc(n).set(data);
 };
 

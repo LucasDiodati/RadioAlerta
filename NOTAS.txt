@@ -5,24 +5,31 @@ Comentar las lineas 77 a 81 de /plugins/cordova-plugin-splashscreen/plugin.xml
 
 PLUGINS ACTIVOS: GPS
 
---> PROBLEMA: //Firebase tiene problemas con manejar el servicio de autenticación y el de Firestore al mismo tiempo en la misma funcion. Pasaba que al querer agregar el usuario nuevo con el servicio de autenticacion y querer pasarle el email recien generado como id a la query que lleva el json con los datos a la base de datos de firestore, encontraba algun problema (no apareció nada por la consola) y autenticaba pero no cargaba a la bd.
+Funciones terminadas:
+Iniciar sesion (servicio de autenticación)
+Recordar usuario con autologin(Local Storage)
+Crear cuenta (autenticación + almacenamiento en cloud firestore)
+Agregar ubicaciones personalizadas (plugin GPS + API here + firestore db)
+Cerrar sesion(localstorage + autenticacion)
 
-SOLUCION: Lo hago en dos vistas diferentes. Primero cargo el email y contraseña con auth y después pido los otros datos. 
+Cosas a mejorar:
+Al crear una nueva ubicacion personalizada el geodecodificador no muestra la dirección real en el puntero draggable.
+Tampoco se puede modificar el radio desde el selector de rango
+Faltaria crear las funciones para ir para atras, borrando los valores de los pasos previos.
+Cada ubicacion personalizada pueda eliminarse con el swiper o modificar los valores de lat, lon y radio (el nombre es clave)
 
---> PROBLEMA: // Plugin de GPS . Agregué una verificación de dispositivo para que no me tire error de funcion deprecada desde la computadora.
-Desde la consola veo lat y lon cuando entro desde el celular. Desde la pc harcodee "0.00 y 0.00".
+Funciones harcodeadas (por el momento):
+Lista de chats grupales
+Lista de Favoritos
+Panel (Bloqueos, Vincular , configuracion , ayuda)
+chat general
 
--- Pasos para este problema: Abro la app de phonegap del celu. Crear cuenta>> cualq email y pass >> relleno con cualquier dato y avatar >> -- paso a "ubicacion" donde no me muestra lat y lon (aunque en la consola lo muestra) y el popup de ayuda o el boton de Listo! no anda.. (Desde la pc anda, no entiendo que me esta fallando)
-
-
-
---> PROBLEMA: // Mapa de Here . Siguiendo los pasos del problema anterior, para llegar al archivo "ubicacion" no me muestra el mapa desde el celular.
-<<por comentarios del foro de Here puse el codigo de inserción de mapa en un archivo aparte que incluí en el index como js/tangram.min.js. (no se si esto esta bueno o empeora)
-DESDE LA PC: 
-	me da el error x consola: mapsjs-core.js:43 Uncaught InvalidArgumentError: H.Map (Argument #0 null)
-    at new D (https://js.api.here.com/v3/3.1/mapsjs-core.js:43:977)
-    at new T (https://js.api.here.com/v3/3.1/mapsjs-core.js:374:350)
-    at http://192.168.0.19:3000/js/tangram.min.js:9:17
-
-
-
+Cosas que faltan:
+Entrar a las vistas de chats personalizados y que cargue el chat correspondiente
+ABM chats grupales, usuarios, admins y visibilidad
+AB favoritos
+AB bloqueados
+CHAT --> prioridad 0. 
+Mensajes: almacenar y traer de bd - mostrar en pantalla
+Imagenes: si hago a tiempo agregar adjuntos de imagen y otro multimedia
+Emojis: Para lo ultimo, y si hago a tiempo
