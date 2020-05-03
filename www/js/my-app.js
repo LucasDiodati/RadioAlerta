@@ -28,9 +28,6 @@ var app = new Framework7({
     path: '/crearCuenta/',
     url: 'nueva-cuenta.html',
   }, {
-    path: '/ubicacion/',
-    url: 'ubicacion.html',
-  }, {
     path: '/chats/',
     url: 'chats.html',
   }, {
@@ -42,6 +39,16 @@ var app = new Framework7({
   }, {
     path: '/chat-general/',
     url: 'chat-general.html',
+beforeLeave: function (routeTo, routeFrom, resolve, reject) {
+    if(/*nothing really*/ 1 === 1){
+     console.log("Esta funcion la uso para guardar la ultima conexion al chat que corresponda y si necesito, otras cosas...");
+     // guardo la fecha de ultima conexion en bd
+     guardarUltimaConexion();
+      resolve();
+    }else{
+     console.log("Si no quiero que se puedan ir del chat por algun motivo voy a usar esto ¬¬");
+     }
+}
   }, ]
 });
 var mainView = app.views.create('.view-main');
@@ -71,7 +78,11 @@ var db, refUsuarios, refTiposUsuarios, refUbicaciones, refMensajes, refChats;
   var fila = 1;
   var avatarN = 1;
 
- 
+/************PARA LOS QUERIDOS MENSAJES DE FRAMEWORK 7*************************/
+var messages, ultimaConexion, rUsuario, rAvatar, r,messagebar, responseInProgress;
+var timestamp = Date.now();
+var contadorGlobal = 0;
+/******************************************************************************/
 
 /************************************************************************************************DEVICE READY*/
 // Handle Cordova Device Ready Event
@@ -97,7 +108,6 @@ $$(document).on('deviceready', function () {
     navigator.geolocation.getCurrentPosition(onSuccess, onError);
   } else {
     // Web page
-
 // Peatonal cordoba y san martin
 // lat = "-32.9467536";
 //  lon = "-60.6373007"; 
@@ -105,27 +115,6 @@ $$(document).on('deviceready', function () {
 // Cordoba y corrientes
 lat = "-32.9456448";
 lon = "-60.6445155";
-
-// Formosa ciudad
-//lat = '-26.174092';
-//lon =  '-58.187608';
-
-// Gral Roca, Rio negro
-//lat = '-39.034367';
-//lon =  '-67.564946';
-
-// San Francisco
-//lat = '37.722770';
-//lon =  '-122.459206';
-
-// Casa de Los simpsons
-//lat = '42.116159';
-//lon =  '-72.517043';
-
-// Islandia
-//lat = '64.145269';
-//lon =  '-21.910129';
-
 
    console.log("LAT COMPUTADORA: " + lat + " LON COMPUTADORA: " + lon);
   }
@@ -140,7 +129,6 @@ lon = "-60.6445155";
   if (iniciarDatos == 1) {
     fnIniciarDatos();
   }
-                  
 
 });
 
@@ -163,12 +151,10 @@ $$('.siguienteMapa').text("Radio ok!");
 $$('.siguienteMapa').on('click',function(){
   //almaceno el radio
 // radioAlerta
- 
+
 });
 $$('.cajaUbicacion').addClass('oculto');
 $$('.radioAlerta').removeClass('oculto');
-
-
 
 $$('#ubicacionAceptada').on('click',function(){
 // guardar los cambios en el rango
@@ -184,7 +170,6 @@ circuloModificable();
 
 mostrarRadio(radioAlerta);
 });
-
 }
 
 function vistaMapa1(){
@@ -266,25 +251,8 @@ vistaMapa1();
 }else if(vistaMapa == 0){
 vistaMapa0();
 }
-
  mapaConUI(); 
 
-
-})
-/*****************************************************************************************************UBICACION*/
-$$(document).on('page:init', '.page[data-name="ubicacion"]', function (e) {
-  console.log(e);
-      
-
-  /** Voy a mostrar la latitud y longitud actual del usuario hasta que pueda incorporar el mapa**/
-  $$('.latitud').append(lat);
-  $$('.longitud').append(lon);
-  console.log("donde tiene que mostrar confirmacion de lat " + lat + " y lon " + lon);
-  $$('#ubicacionAceptada').on('click', function () {
-    cargarDatosUsuario();
-    mainView.router.navigate('/chats/');
-  });
-   mapaConUI();
 })
 
 /***********************************************************************************************PERFIL USUARIO*/
@@ -378,6 +346,7 @@ $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
     panelIzq();
     cargarInfoUsuario(email);
     cargarChats();
+
 $$('#configGeneral').on('click',function(){
   vistaMapa = 1;
     mainView.router.navigate('/mapa/');
@@ -404,16 +373,18 @@ $$('#agregarUbicacion').on('click',function(){
 $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
 
     panelIzq();
-   // setInterval(guardarUltimaConexion, 10000);
-     
-
-var ultimaConexion = "hoy";
   $$('#tituloChat').text(tituloChat);
   $$('.send-link').on('click', enviarMensaje);
 
+    ultimaConexion = "hoy";
+/*
+$$(window).on("beforeunload", function() { 
+    return confirm("Do you really want to close?"); 
+});
+*/
 
-  // Init Messages
-  var messages = app.messages.create({
+  // Inicializo los mensajes
+  messages = app.messages.create({
     el: '.messages',
     // First message rule
     firstMessageRule: function (message, previousMessage, nextMessage) {
@@ -453,14 +424,214 @@ var ultimaConexion = "hoy";
     }
   });
   // Init Messagebar
-  var messagebar = app.messagebar.create({
+  messagebar = app.messagebar.create({
     el: '.messagebar'
   });
   // Response flag
-  var responseInProgress = false;
+  responseInProgress = false;
 
-  cargarMensajes();
+traerUltimaConexion();
+ escucharMensajes();
 
+})
+
+/***************************************************************************************************************/
+/***************************************************************************************************************/
+/***************************************************************************************************************/
+/***********************************************FUNCIONES*******************************************************/
+/***************************************************************************************************************/
+/***************************************************************************************************************/
+/***************************************************************************************************************/
+
+
+/****************************************************************/
+function cargarMensajes(timestamp){
+    var d = new Date(timestamp);
+ultimaConexion = d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" - "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds();
+//console.log("Y aca deberia cargar los mensajes nuevos a partir del "+ultimaConexion);
+
+if(cargar == "global"){
+
+/*
+//ESTUVE PROBANDO ESTO PARA AGREGAR UN AGENTE DE ESCUCHA A LA QUERY PERO NO ESTARIA FUNCIONANDO...
+db.collection("cities").where("state", "==", "CA")
+
+    .onSnapshot(function(querySnapshot) {
+        var cities = [];
+        querySnapshot.forEach(function(doc) {
+            cities.push(doc.data().name);
+        });
+        console.log("Current cities in CA: ", cities.join(", "));
+    });
+
+*/
+
+// refMensajes.where("destinatario" , "==" , "global").orderBy("fecha","asc").get() asi estaba antes
+
+// primero cargo los mensajes viejos...
+refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).get()
+.then(function(querySnapshot){
+  querySnapshot.forEach(function(doc){
+var d = new Date(doc.data().fecha);
+var m = doc.data().mensaje;
+var r = doc.data().remitente;
+var la = doc.data().latitud;
+var lo = doc.data().longitud;
+if(r == email){
+  // mensaje enviado
+   recibirMiMensaje(usuario,m,sinRuta)
+}else{ 
+console.log("Desde la consulta te digo el email: "+r);
+  //traer nick y avatar del remitente
+refUsuarios.doc(r).get()
+.then(function(doc){
+  rUsuario = doc.data().usuario;
+   console.log("from la consulta "+doc.data().usuario);
+    rAvatar = doc.data().avatar;
+  // mensaje recibido
+recibirMensajeYa(rUsuario,m,rAvatar)
+  })
+.catch(function(error){ console.log("Error en la consulta: ", error);});
+}
+ console.log("msg: "+doc.data().mensaje+" el: "+d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" a las "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
+});
+})
+.catch(function(error){
+  console.log("Error en la consulta: ", error);
+});
+
+
+
+// aca deberia imprimir la fecha de ultima conexion y un separador
+// tambien un focus() en el primer mensaje que cargue
+
+//recibirMensajeYa("USUARIO SEPARADOR","MENSAJE, MENSAJE LALALALALALALA", "/img/min/40.png");
+
+
+refMensajes.where("destinatario" , "==" , "global").where("fecha",">",timestamp).get()
+.then(function(querySnapshot){
+  querySnapshot.forEach(function(doc){
+var d = new Date(doc.data().fecha);
+var m = doc.data().mensaje;
+var r = doc.data().remitente;
+var la = doc.data().latitud;
+var lo = doc.data().longitud;
+if(r == email){
+  // mensaje enviado
+   recibirMiMensaje(usuario,m,sinRuta)
+}else{ 
+console.log("Desde la consulta te digo el email: "+r);
+  //traer nick y avatar del remitente
+refUsuarios.doc(r).get()
+.then(function(doc){rUsuario = doc.data().usuario; console.log("from la consulta "+doc.data().usuario); rAvatar = doc.data().avatar;})
+.catch(function(error){ console.log("Error en la consulta: ", error);});
+  // mensaje recibido
+recibirMensajeYa(rUsuario,m,rAvatar)
+}
+
+ console.log("msg: "+doc.data().mensaje+" el: "+d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" a las "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
+
+});
+ // recibirMensajeYa("RadioAlerta bot","Estos son los nuevos mensajes desde tu ultima conexión! <br>"+ultimaConexion, "/img/min/40.png");
+})
+.catch(function(error){
+  console.log("Error en la consulta: ", error);
+});
+
+
+
+
+};
+
+};
+
+
+/************************************************************************/
+function escucharMensajes(){
+
+// LA CARGA DE MENSAJES NUEVOS 
+refMensajes.where("fecha",">",timestamp).onSnapshot(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+var m = doc.data().mensaje;
+var r = doc.data().remitente;
+
+if(r == email){
+  // mensaje enviado
+   recibirMiMensaje(usuario,m,sinRuta)
+}else{ 
+console.log("Desde la consulta te digo el email: "+r);
+  //traer nick y avatar del remitente
+refUsuarios.doc(r).get()
+.then(function(doc){
+  rUsuario = doc.data().usuario;
+   console.log("from la consulta "+doc.data().usuario);
+    rAvatar = doc.data().avatar;
+  // mensaje recibido
+recibirMensajeYa(rUsuario,m,rAvatar)
+  })
+.catch(function(error){ console.log("Error en la consulta: ", error);});
+}
+        });
+        console.log("Tenes nuevos mensajes!");
+        contadorGlobal++;
+    });
+}
+
+/*************************************************************************/
+  function recibirMiMensaje(usuario,m,sinRuta){
+    messages.addMessage({
+      text: m,
+      type: 'sent',
+      name: usuario,
+      avatar: sinRuta
+    });
+    console.log("desde recibirMiMensaje "+sinRuta);
+  }; 
+/*************************************************************************/
+  function recibirMensajeYa(remitente,mensaje,avatar) {
+    messages.addMessage({
+      text: mensaje,
+      type: 'received',
+      name: remitente,
+      avatar: avatar
+    });
+        console.log("desde recibirMensajeYa "+avatar);
+  };
+
+/**********************************************************************/
+function guardarUltimaConexion(){
+var guardarConexion = Date.now();
+
+if (cargar == "global") {
+  var data = {
+    ultimaConexion: guardarConexion
+  }
+  refUbicaciones.doc("GLOBAL").set(data);
+console.log("DESDE guardarUltimaConexion "+guardarConexion);
+}
+
+}
+/**********************************************************************/
+function traerUltimaConexion(){
+if (cargar == "global") {
+refUbicaciones.doc("GLOBAL").get().then(function (doc) {
+  var d = new Date(doc.data().ultimaConexion);
+  //ultimaConexion = d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" - "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds();
+  //console.log("DESDE /*/*/*/*/*/*//*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/traerUltimaConexion "+ultimaConexion);
+  $$('.ultimaConexion').html('<span style="font-size:1em; font-weight:bold;">Mensajes desde: '+d.getDate()+'/'+(d.getMonth()+1) +' - <b style="color:#2A52BE;">'+d.getHours()+':'+d.getMinutes()+'.'+d.getSeconds()+'</b></span>');
+cargarMensajes(doc.data().ultimaConexion);
+})
+    .catch(function(error){ console.log("Error en la consulta de ultima conexion: ", error);});
+
+
+// Obtengo los datos de fecha y hora del mensaje de acuerdo al timestamp que le pase
+//   alert(d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear() 
+//       +" - "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
+}
+
+}
+
+/*************************************************************/
 function nuevoMensaje(mensaje,dest){
 console.log(mensaje);
 // voy a guardar: con add() no uso clave para almacenarlos
@@ -469,7 +640,7 @@ console.log(mensaje);
 // timestamp (fecha y hora del mensaje)
 // lat y lon (esto lo voy a usar para geoubicar el mensaje)
 // destinatario (si va al principal es "global", sino asocio el mensaje a email (fav) o id (grupo o ubicacion pers))
-var timestamp = Date.now();
+timestamp = Date.now();
 var data = {
   mensaje: mensaje,
   remitente: email,
@@ -490,89 +661,7 @@ refMensajes.add(data)
 
 };
 
-function cargarMensajes(){
-// Obtengo los datos de fecha y hora del mensaje de acuerdo al timestamp que le pase
-//   alert(d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear() 
-//       +" - "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
-
-// dependiendo del parametro pasado traigo los del global, del personalizado, del grupo o favorito
-if(cargar == "global"){
-refUsuarios.doc(email).get()
-.then(function(doc){ultimaConexion = doc.data().ultimaConexion;})
-.catch(function(error){ console.log("Error en la consulta: ", error);});
-  $$('.ultimaConexion').text(ultimaConexion);
-
-refMensajes.where("destinatario" , "==" , "global").orderBy("fecha","asc").get()
-.then(function(querySnapshot){
-  querySnapshot.forEach(function(doc){
-var d = new Date(doc.data().fecha);
-var m = doc.data().mensaje;
-var r = doc.data().remitente;
-var la = doc.data().latitud;
-var lo = doc.data().longitud;
-if(r == email){
-  // mensaje enviado
-   recibirMiMensaje(usuario,m,sinRuta)
-}else{ 
-console.log("Desde la consulta te digo el email: "+r);
-  var rUsuario = "";
-  var rAvatar = "";
-  //traer nick y avatar del remitente
-refUsuarios.doc(r).get()
-.then(function(doc){rUsuario = doc.data().usuario; console.log(doc.data().usuario); rAvatar = doc.data().avatar;})
-.catch(function(error){ console.log("Error en la consulta: ", error);});
-  // mensaje recibido
-recibirMensaje(rUsuario,m,rAvatar)
-}
-
- console.log("msg: "+doc.data().mensaje+" el: "+d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" a las "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
-
-});
-})
-.catch(function(error){
-  console.log("Error en la consulta: ", error);
-});
-
-}
-
-
-
-};
-
-
-function enviarMensaje(){
-  // Send Message
-    var mensaje = messagebar.getValue().replace(/\n/g, '<br>').trim();
-    // return if empty message
-    if (!mensaje.length) return;
-    // Clear area
-    messagebar.clear();
-    // Return focus to area
-    messagebar.focus();
-    // Add message to messages
-
-    messages.addMessage({
-      text: mensaje,
-      type: 'sent',
-      name: usuario,
-      avatar: sinRuta
-    });
-    nuevoMensaje(mensaje,"global");
-    if (responseInProgress) return;
-  
-};
-
-  function recibirMiMensaje(usuario,m,sinRuta){
-    messages.addMessage({
-      text: m,
-      type: 'sent',
-      name: usuario,
-      avatar: sinRuta
-    });
-  };
-
-
-
+/*************************************************************************/
   function recibirMensaje(remitente,mensaje,avatar) {
     responseInProgress = true;
     setTimeout(function () {
@@ -600,38 +689,30 @@ function enviarMensaje(){
   };
 
 
-})
 
-/***************************************************************************************************************/
-/***************************************************************************************************************/
-/***************************************************************************************************************/
-/***********************************************FUNCIONES*******************************************************/
-/***************************************************************************************************************/
-/***************************************************************************************************************/
-/***************************************************************************************************************/
+/**********************************************************************/
+function enviarMensaje(){
+  // Send Message
+    var mensaje = messagebar.getValue().replace(/\n/g, '<br>').trim();
+    // return if empty message
+    if (!mensaje.length) return;
+    // Clear area
+    messagebar.clear();
+    // Return focus to area
+    messagebar.focus();
+    // Add message to messages
+    messages.addMessage({
+      text: mensaje,
+      type: 'sent',
+      name: usuario,
+      avatar: sinRuta
+    });
+    nuevoMensaje(mensaje,"global");
+    if (responseInProgress) return;
+  
+};
 
-function guardarUltimaConexion(){
-var guardarConexion = Date.now();
-
-if (cargar == "global") {
-//Si es el chat global guardo un timestamp de ultima conexion en el perfil del usuario
-  var data = {
-    ultimaConexion: guardarConexion
-  }
-  refUbicaciones.doc("GLOBAL").set(data);
-
-}
-
-}
-
-
-
-
-
-
-
-
-
+/**********************************************************************/
 
 
 // cuando abro el popup de los avatares creo las filas y los avatares de manera dinámica
@@ -1388,7 +1469,7 @@ function consultarLocalStorage(){
  refUsuarios.doc(email).get().then(function (doc) {
   usuario = doc.data().usuario;
 sinRuta = doc.data().avatar;
-ultimaConexion  = doc.data().ultimaConexion;
+tipoUsuario = doc.data().tipo;
 })
     .catch(function(error){ console.log("Error en la consulta: ", error);});
 
@@ -1550,10 +1631,12 @@ var hayUbicaciones = 0;
 refUbicaciones.get()
 .then(function(querySnapshot){
   querySnapshot.forEach(function(doc){
+if(doc.id !== "GLOBAL"){
   console.log("data: "+doc.data().nombre);
 $$('#ubicacionesFirestore').append('<li class="swipeout ubicacionPersonalizada"><div class="swipeout-content nombrePersonalizada">'+doc.data().nombre+'</div><h6 class="nuevoChatPersonalizado">+999</h6><div class="swipeout-actions-right"><a href="#" class="open-more-actions configuracion"><img src="img/config.png" class="config"></a></div></li>');
 hayUbicaciones++;
 quitarAlerta();
+}
 });
 })
 .catch(function(error){
@@ -1591,4 +1674,3 @@ console.log(data);
 
   refUbicaciones.doc(n).set(data);
 };
-
