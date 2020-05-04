@@ -82,6 +82,7 @@ var db, refUsuarios, refTiposUsuarios, refUbicaciones, refMensajes, refChats;
 var messages, ultimaConexion, rUsuario, rAvatar, r,messagebar, responseInProgress;
 var timestamp = Date.now();
 var contadorGlobal = 0;
+var mensajesCargados;
 /******************************************************************************/
 
 /************************************************************************************************DEVICE READY*/
@@ -377,11 +378,6 @@ $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
   $$('.send-link').on('click', enviarMensaje);
 
     ultimaConexion = "hoy";
-/*
-$$(window).on("beforeunload", function() { 
-    return confirm("Do you really want to close?"); 
-});
-*/
 
   // Inicializo los mensajes
   messages = app.messages.create({
@@ -431,6 +427,7 @@ $$(window).on("beforeunload", function() {
   responseInProgress = false;
 
 traerUltimaConexion();
+//Esto es para que si se agrega un mensaje nuevo me lo traiga
  escucharMensajes();
 
 })
@@ -447,41 +444,34 @@ traerUltimaConexion();
 /****************************************************************/
 function cargarMensajes(timestamp){
     var d = new Date(timestamp);
+    mensajesCargados = new Array();
+    var i = 0;
 ultimaConexion = d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" - "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds();
 //console.log("Y aca deberia cargar los mensajes nuevos a partir del "+ultimaConexion);
 
 if(cargar == "global"){
-
-/*
-//ESTUVE PROBANDO ESTO PARA AGREGAR UN AGENTE DE ESCUCHA A LA QUERY PERO NO ESTARIA FUNCIONANDO...
-db.collection("cities").where("state", "==", "CA")
-
-    .onSnapshot(function(querySnapshot) {
-        var cities = [];
-        querySnapshot.forEach(function(doc) {
-            cities.push(doc.data().name);
-        });
-        console.log("Current cities in CA: ", cities.join(", "));
-    });
-
-*/
-
 // refMensajes.where("destinatario" , "==" , "global").orderBy("fecha","asc").get() asi estaba antes
 
 // primero cargo los mensajes viejos...
-refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).get()
+//refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).orderByChild("fecha").get()
+refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).orderBy("fecha","asc").get()
 .then(function(querySnapshot){
   querySnapshot.forEach(function(doc){
-var d = new Date(doc.data().fecha);
+
+
 var m = doc.data().mensaje;
 var r = doc.data().remitente;
 var la = doc.data().latitud;
 var lo = doc.data().longitud;
+var h = doc.data().fecha;
+var hm = new Date(h);
+var horaMensaje = hm.getHours()+":"+hm.getMinutes();
+
 if(r == email){
   // mensaje enviado
-   recibirMiMensaje(usuario,m,sinRuta)
+   //recibirMiMensaje(usuario,m,sinRuta,horaMensaje)
 }else{ 
-console.log("Desde la consulta te digo el email: "+r);
+//console.log("Desde la consulta te digo el email: "+r);
   //traer nick y avatar del remitente
 refUsuarios.doc(r).get()
 .then(function(doc){
@@ -489,16 +479,55 @@ refUsuarios.doc(r).get()
    console.log("from la consulta "+doc.data().usuario);
     rAvatar = doc.data().avatar;
   // mensaje recibido
-recibirMensajeYa(rUsuario,m,rAvatar)
+//recibirMensajeYa(rUsuario,m,rAvatar,horaMensaje)
   })
 .catch(function(error){ console.log("Error en la consulta: ", error);});
 }
- console.log("msg: "+doc.data().mensaje+" el: "+d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" a las "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
+
+
+mensajesCargados[i] = {};
+mensajesCargados[i]['remitente'] = r;
+mensajesCargados[i]['mensaje'] = m;
+mensajesCargados[i]['latitud'] = la;
+mensajesCargados[i]['longitud'] = lo;
+mensajesCargados[i]['fecha'] = h;
+
+mensajesCargados.push(mensajesCargados[i]);
+
+mensajesCargados.sort(function(x, y){
+    return x.timestamp - y.timestamp;
 });
+
+
+i++;
+});
+/////////// Aca voy a hacer un for con los mensajes cargados del array
+console.log(i);
+for (var e = 0; e < mensajesCargados.length-1; e++) {
+console.log(mensajesCargados[e]);
+
+var m = mensajesCargados[e]['mensaje'];
+var r = mensajesCargados[e]['remitente'];
+var la = mensajesCargados[e]['latitud'];
+var lo = mensajesCargados[e]['longitud'];
+var h = mensajesCargados[e]['fecha'];
+var hm = new Date(h);
+var horaMensaje = hm.getHours()+":"+hm.getMinutes();
+
+recibirCualquierMensaje();
+
+
+
+};
+/*var mje = $$( "div" ).get();
+mje = $$.uniqueSort(mje);
+*/
+
 })
 .catch(function(error){
   console.log("Error en la consulta: ", error);
 });
+
 
 
 
@@ -516,9 +545,12 @@ var m = doc.data().mensaje;
 var r = doc.data().remitente;
 var la = doc.data().latitud;
 var lo = doc.data().longitud;
+var h = doc.data().fecha;
+var hm = new Date(h);
+var horaMensaje = hm.getHours()+":"+hm.getMinutes();
 if(r == email){
   // mensaje enviado
-   recibirMiMensaje(usuario,m,sinRuta)
+   recibirMiMensaje(usuario,m,sinRuta,horaMensaje)
 }else{ 
 console.log("Desde la consulta te digo el email: "+r);
   //traer nick y avatar del remitente
@@ -526,78 +558,81 @@ refUsuarios.doc(r).get()
 .then(function(doc){rUsuario = doc.data().usuario; console.log("from la consulta "+doc.data().usuario); rAvatar = doc.data().avatar;})
 .catch(function(error){ console.log("Error en la consulta: ", error);});
   // mensaje recibido
-recibirMensajeYa(rUsuario,m,rAvatar)
+recibirMensajeYa(rUsuario,m,rAvatar,horaMensaje)
 }
-
  console.log("msg: "+doc.data().mensaje+" el: "+d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear()+" a las "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
-
 });
  // recibirMensajeYa("RadioAlerta bot","Estos son los nuevos mensajes desde tu ultima conexión! <br>"+ultimaConexion, "/img/min/40.png");
 })
 .catch(function(error){
   console.log("Error en la consulta: ", error);
 });
-
-
-
-
 };
-
 };
-
-
 /************************************************************************/
 function escucharMensajes(){
-
 // LA CARGA DE MENSAJES NUEVOS 
 refMensajes.where("fecha",">",timestamp).onSnapshot(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
+
+ var idMensaje = doc.id;
+timestamp = Date.now();
+console.log("El timestamp "+timestamp);
 var m = doc.data().mensaje;
 var r = doc.data().remitente;
-
+console.log("ID DEL MENSAJE ONSNAPSHOT: "+idMensaje);
+var h = doc.data().fecha;
+traerMensaje(idMensaje,r,m,h);
+        console.log("Tenes nuevos mensajes!");
+        contadorGlobal++;
+        });
+    });
+}
+/*************************************************************************/
+function traerMensaje(idMensaje,r,m,h){
+console.log("Traigo de la base de datos el mensaje con id "+idMensaje+" de "+r+" que dice: "+m);
 if(r == email){
-  // mensaje enviado
-   recibirMiMensaje(usuario,m,sinRuta)
-}else{ 
-console.log("Desde la consulta te digo el email: "+r);
-  //traer nick y avatar del remitente
+// desde el onsnapshot no necesito cargar mensajes propios
+}else{
+  //traer lo que necesito del mensaje
 refUsuarios.doc(r).get()
 .then(function(doc){
   rUsuario = doc.data().usuario;
-   console.log("from la consulta "+doc.data().usuario);
-    rAvatar = doc.data().avatar;
+  rAvatar = doc.data().avatar;
+var hm = new Date(h);
+var horaMensaje = hm.getHours()+":"+hm.getMinutes();
   // mensaje recibido
-recibirMensajeYa(rUsuario,m,rAvatar)
+recibirMensajeYa(rUsuario,m,rAvatar,horaMensaje)
   })
-.catch(function(error){ console.log("Error en la consulta: ", error);});
+.catch(function(error){
+ console.log("Error en la consulta: ", error);});
 }
-        });
-        console.log("Tenes nuevos mensajes!");
-        contadorGlobal++;
-    });
-}
+// actualizo hora de ultima conexion
+guardarUltimaConexion();
 
+}
 /*************************************************************************/
-  function recibirMiMensaje(usuario,m,sinRuta){
+  function recibirMiMensaje(usuario,m,sinRuta,horaMensaje){
     messages.addMessage({
       text: m,
       type: 'sent',
-      name: usuario,
-      avatar: sinRuta
+      textHeader: '@'+usuario,
+      avatar: sinRuta,
+      textFooter: horaMensaje
     });
     console.log("desde recibirMiMensaje "+sinRuta);
   }; 
 /*************************************************************************/
-  function recibirMensajeYa(remitente,mensaje,avatar) {
+  function recibirMensajeYa(remitente,mensaje,avatar,horaMensaje) {
     messages.addMessage({
       text: mensaje,
       type: 'received',
-      name: remitente,
-      avatar: avatar
+      textHeader: '@'+remitente,
+      avatar: avatar,
+      textFooter: horaMensaje
     });
-        console.log("desde recibirMensajeYa "+avatar);
+    //    console.log("desde recibirMensajeYa "+avatar);
   };
-
 /**********************************************************************/
 function guardarUltimaConexion(){
 var guardarConexion = Date.now();
@@ -609,7 +644,6 @@ if (cargar == "global") {
   refUbicaciones.doc("GLOBAL").set(data);
 console.log("DESDE guardarUltimaConexion "+guardarConexion);
 }
-
 }
 /**********************************************************************/
 function traerUltimaConexion(){
@@ -622,15 +656,11 @@ refUbicaciones.doc("GLOBAL").get().then(function (doc) {
 cargarMensajes(doc.data().ultimaConexion);
 })
     .catch(function(error){ console.log("Error en la consulta de ultima conexion: ", error);});
-
-
 // Obtengo los datos de fecha y hora del mensaje de acuerdo al timestamp que le pase
 //   alert(d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear() 
 //       +" - "+d.getHours()+":"+d.getMinutes()+"."+d.getSeconds());
 }
-
 }
-
 /*************************************************************/
 function nuevoMensaje(mensaje,dest){
 console.log(mensaje);
@@ -649,7 +679,6 @@ var data = {
   longitud: lon,
   destinatario: dest
 };
-
 refMensajes.add(data)
 .then(function(docRef){
   console.log("ok con el ID: " + docRef.id);
@@ -657,10 +686,7 @@ refMensajes.add(data)
 .catch(function(error){
   console.log("Error enviando el mensaje: " + error);
 });
-
-
 };
-
 /*************************************************************************/
   function recibirMensaje(remitente,mensaje,avatar) {
     responseInProgress = true;
@@ -687,11 +713,11 @@ refMensajes.add(data)
       }, 4000);
     }, 1000);
   };
-
-
-
 /**********************************************************************/
 function enviarMensaje(){
+  timestamp = Date.now();
+  var hm = new Date(timestamp);
+var horaMensaje = hm.getHours()+":"+hm.getMinutes();
   // Send Message
     var mensaje = messagebar.getValue().replace(/\n/g, '<br>').trim();
     // return if empty message
@@ -704,14 +730,13 @@ function enviarMensaje(){
     messages.addMessage({
       text: mensaje,
       type: 'sent',
-      name: usuario,
-      avatar: sinRuta
+      textHeader: '@'+usuario,
+      avatar: sinRuta,
+      textFooter: horaMensaje
     });
     nuevoMensaje(mensaje,"global");
     if (responseInProgress) return;
-  
 };
-
 /**********************************************************************/
 
 
@@ -800,6 +825,8 @@ function fnIniciarDatos() {
     saludo: saludo
   }
   refTiposUsuarios.doc(codido).set(data);
+
+
   var data = {
     nombre: "Admin",
     telefono: "1234",
@@ -811,7 +838,6 @@ function fnIniciarDatos() {
   }
   refUsuarios.doc("programacion21@live.com").set(data);
 };
-
 
 /**********************HACER LA QUERY A LA BD Y CARGAR TODA LA INFO DE USUARIO AL PANEL**************************/
 function cargarDatosUsuario() {
@@ -1112,10 +1138,8 @@ map.removeObjects(map.getObjects(marker));
       behavior.enable();
     }
 
-if(vistaMapa == 0){
 latPuntero = target.b.lat;
 lonPuntero = target.b.lng;
-}
 
 console.log("DESDE EL PUNTERO DRAGGABLE: "+latPuntero+" "+lonPuntero);
 geodecodificador(latPuntero,lonPuntero);
@@ -1180,10 +1204,10 @@ map.addObject(circle);
 function geodecodificador(latit,longit){
 // Documentacion: https://developer.here.com/documentation/geocoding-search-api/dev_guide/topics-api/code-revgeocode.html
 // Ejemplo: https://developer.here.com/documentation/examples/rest/geocoder/reverse-geocode
-
+console.log("MOSTRAR DEL GEODECODIFICADOR "+latit+" - "+longit);
 url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json';
 app.request.json(url, {
-    prox: latit+','+longit,
+    prox: latit+','+longit+",57",
     mode: 'retrieveAddresses',
     maxresults: '1',
     gen: '9',
