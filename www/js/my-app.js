@@ -52,7 +52,8 @@ beforeLeave: function (routeTo, routeFrom, resolve, reject) {
   }, ]
 });
 var mainView = app.views.create('.view-main');
-var email, password, tituloChat, nombre, telefono, usuario, avatar, tipo, lat, lon, sinRuta, map, circle, circleOutline, circleTimeout, ubicacionGeodecodificada, nombrePuntero, marker, cargar;
+
+var email, password, tituloChat, nombre, telefono, usuario, avatar, tipo, lat, lon, sinRuta, map, circle, circleOutline, circleTimeout, ubicacionGeodecodificada, nombrePuntero, marker, cargar, distancia;
 var hayUbicaciones = 0;
 var nuevaUbicacion = 0;
 var latPuntero = "";
@@ -63,6 +64,7 @@ var usuario = "no cargo el usuario";
 var nuevaCuenta = 0;
 // para la ubicacion actual y el radio por defecto
 var latUsuario=0, lonUsuario=0;
+var latCerca, lonCerca;
 var vistaMapa = 1;
 var radioAlerta = 300;
 var radioPuntero = 300;
@@ -110,8 +112,8 @@ $$(document).on('deviceready', function () {
   } else {
     // Web page
 // Peatonal cordoba y san martin
-// lat = "-32.9467536";
-//  lon = "-60.6373007"; 
+ latCerca = "-32.9467536";
+ lonCerca = "-60.6373007"; 
 
 // Cordoba y corrientes
 lat = "-32.9456448";
@@ -347,6 +349,7 @@ $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
     panelIzq();
     cargarInfoUsuario(email);
     cargarChats();
+  cargarDatosUsuario();
 
 $$('#configGeneral').on('click',function(){
   vistaMapa = 1;
@@ -359,10 +362,9 @@ $$('#configGeneral').on('click',function(){
     mainView.router.navigate('/chat-general/');
   });
   $$('#chatCasa').on('click', function () {
-    tituloChat = "Casa";
-    mainView.router.navigate('/chat-general/');
+   
+   getDistanciaMetros(lat,lon,latCerca,lonCerca);
   });
-  cargarDatosUsuario();
 
 $$('#agregarUbicacion').on('click',function(){
   vistaMapa = 0;
@@ -514,7 +516,22 @@ var h = mensajesCargados[e]['fecha'];
 var hm = new Date(h);
 var horaMensaje = hm.getHours()+":"+hm.getMinutes();
 
-recibirCualquierMensaje();
+if(r == email){
+  // mensaje enviado
+   recibirMiMensaje(usuario,m,sinRuta,horaMensaje)
+}else{ 
+//console.log("Desde la consulta te digo el email: "+r);
+  //traer nick y avatar del remitente
+refUsuarios.doc(r).get()
+.then(function(doc){
+  var rUsuario = doc.data().usuario;
+   console.log("from la consulta "+doc.data().usuario);
+    var rAvatar = doc.data().avatar;
+  // mensaje recibido
+recibirMensajeYa(rUsuario,m,rAvatar,horaMensaje)
+  })
+.catch(function(error){ console.log("Error en la consulta: ", error);});
+}
 
 
 
@@ -1698,3 +1715,18 @@ console.log(data);
 
   refUbicaciones.doc(n).set(data);
 };
+/***********************************************************************************************************/
+ function getDistanciaMetros(lat1,lon1,lat2,lon2){
+        console.log("entro a getDistanciaMetros")
+        rad = function(x) {return x*Math.PI/180;}
+        var R = 6378.137; //Radio de la tierra en km
+        var dLat = rad( lat2 - lat1 );
+        var dLong = rad( lon2 - lon1 );
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(rad(lat1)) *
+        Math.cos(rad(lat2)) * Math.sin(dLong/2) * Math.sin(dLong/2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        //aquí obtienes la distancia en metros por la conversion 1Km =1000m
+        distancia = R * c * 1000;
+        //return distancia ;
+        console.log(distancia);
+      };
