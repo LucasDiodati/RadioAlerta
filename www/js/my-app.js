@@ -114,8 +114,12 @@ $$(document).on('deviceready', function () {
  lonCerca = "-60.6373007"; 
 
 // Plaza pringles
-lat = "-32.9456448";
-lon = "-60.6445155";
+//lat = "-32.9456448";
+//lon = "-60.6445155";
+
+// San martin y E de luca
+lat = "-32.994916";
+lon = "-60.647674";
 
    console.log("LAT COMPUTADORA: " + lat + " LON COMPUTADORA: " + lon);
   }
@@ -152,6 +156,8 @@ $$('.siguienteMapa').text("Radio ok!");
 $$('.siguienteMapa').on('click',function(){
   //almaceno el radio
 // radioAlerta
+var data = {radio: radioAlerta};
+refUbicaciones.doc('GLOBAL').update(data);
 
 });
 $$('.cajaUbicacion').addClass('oculto');
@@ -308,7 +314,6 @@ $$(document).on('page:init', '.page[data-name="inicioSesion"]', function (e) {
       password = $$('#passwordLogin').val();
       crearUsuario();
     });
-  
 /***********************LOGIN*************************/
 // sign in con firebase auth
   } else {
@@ -372,49 +377,25 @@ $$('#agregarUbicacion').on('click',function(){
 })
 /*************************************************************************************************CHAT GENERAL*/
 $$(document).on('page:init', '.page[data-name="chat-general"]', function (e) {
-
-    panelIzq();
+  panelIzq();
   $$('#tituloChat').text(tituloChat);
   $$('.send-link').on('click', enviarMensaje);
-
-    ultimaConexion = "hoy";
-
+  ultimaConexion = "hoy";
   // Inicializo los mensajes
   messages = app.messages.create({
     el: '.messages',
-    // First message rule
     firstMessageRule: function (message, previousMessage, nextMessage) {
-      // Skip if title
       if (message.isTitle) return false;
-      /* if:
-      - there is no previous message
-      - or previous message type (send/received) is different
-      - or previous message sender name is different
-    */
 if (!previousMessage || previousMessage.type !== message.type || previousMessage.name !== message.name) return true;
       return false;
     },
-    // Last message rule
     lastMessageRule: function (message, previousMessage, nextMessage) {
-      // Skip if title
       if (message.isTitle) return false;
-      /* if:
-      - there is no next message
-      - or next message type (send/received) is different
-      - or next message sender name is different
-    */
 if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== message.name) return true;
       return false;
     },
-    // Last message rule
     tailMessageRule: function (message, previousMessage, nextMessage) {
-      // Skip if title
       if (message.isTitle) return false;
-      /* if (bascially same as lastMessageRule):
-      - there is no next message
-      - or next message type (send/received) is different
-      - or next message sender name is different
-    */
 if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== message.name) return true;
       return false;
     }
@@ -425,34 +406,47 @@ if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== me
   });
   // Response flag
   responseInProgress = false;
-
 traerUltimaConexion();
 //Esto es para que si se agrega un mensaje nuevo me lo traiga
  escucharMensajes();
-
 })
-
-/***************************************************************************************************************/
-/***************************************************************************************************************/
-/***************************************************************************************************************/
-/*************************************FUNCIONES DE LOS MENSAJES*************************************************/
-/***************************************************************************************************************/
-/***************************************************************************************************************/
-/***************************************************************************************************************/
-/***************************** CARGAR MENSAJES DESDE LA ULTIMA CONEXION Y ANTERIORES ******************************/
+  /***************************************************************************************************************/
+  /***************************************************************************************************************/
+  /***************************************************************************************************************/
+  /*************************************FUNCIONES DE LOS MENSAJES*************************************************/
+  /***************************************************************************************************************/
+  /***************************************************************************************************************/
+  /***************************************************************************************************************/
+/***************************** CARGAR MENSAJES DESDE LA ULTIMA CONEXION Y ANTERIORES *******************************/
 function cargarMensajes(timestamp){
 var d = new Date(timestamp);
 mensajesCargados = new Array();
 var i = 0;
 ultimaConexion =
 d.getDate() + '/' + (d.getMonth()+1) +'/' + d.getFullYear()+' - '+d.getHours()+':'+d.getMinutes()+'.'+d.getSeconds();
-//console.log("Y aca deberia cargar los mensajes nuevos a partir del "+ultimaConexion);
 
 if(cargar == "global"){
-// primero cargo los mensajes viejos...
-// refMensajes.where("destinatario" , "==" , "global").orderBy("fecha","asc").get() // asi estaba antes
+// Traigo el radio alerta de la base de datos y tomo mi lat y lon actual para llamar a los mensajes que corresponda
+refUsuarios.doc(email).collection('UBICACIONES').doc('GLOBAL').get()
+.then(function(doc){
+    if (doc.data().radio !== undefined) {
+  radioAlerta = doc.data().radio;
+}else{
+  radioAlerta = 500; // Valor por defecto
+  //Si no registro nunca el radio manualmente se lo seteo en la bd la primera vez que entra al chat global
+var data = {radio: radioAlerta};
+refUsuarios.doc(email).collection('UBICACIONES').doc('GLOBAL').update(data);
+}
+console.log("desde la query al user tome el radio: "+radioAlerta);
+})
+.catch(function(error){
+ console.log("Le mensaje de error: "+error);
+});
+
+// asi estaba antes
+// refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).orderBy("fecha","asc").get() 
 //refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).orderByChild("fecha").get()
-refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).orderBy("fecha","asc").get()
+refMensajes.where("destinatario" , "==" , "global").orderBy("fecha","asc").get()
 .then(function(querySnapshot){
                 querySnapshot.forEach(function(doc){
                     var m = doc.data().mensaje;
@@ -462,6 +456,11 @@ refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp)
                     var h = doc.data().fecha;
                     var hm = new Date(h);
                     var horaMensaje = hm.getHours()+":"+hm.getMinutes();
+// Aca voy a usar el radio con la funcion de distancias y calculo si tomo el mensaje o no 
+distancia = getDistanciaMetros(lat,lon,la,lo);
+if (distancia>radioAlerta) {
+  console.log("el mensaje "+doc.id+" esta fuera de tu radio");
+}else{
 
                     if(r == email){
                       // mensaje enviado
@@ -493,6 +492,13 @@ refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp)
                                                   return x.timestamp - y.timestamp;
                                                   });
                     i++;
+
+
+
+
+}
+
+
                 });
 /////////// Aca voy a hacer un for con los mensajes cargados del array
 console.log("DESDE FUERA DEL FOREACH CARGO LOS "+i+" MENSAJES RUSTICAMENTE ORDENADOS CON UN FOR Y UN ARRAY");
@@ -525,9 +531,6 @@ console.log("DESDE FUERA DEL FOREACH CARGO LOS "+i+" MENSAJES RUSTICAMENTE ORDEN
                                       });
                     }
         };
-/*var mje = $$( "div" ).get();
-mje = $$.uniqueSort(mje);
-*/
 })
 .catch(function(error){
   console.log("Error en la consulta: ", error);
@@ -538,6 +541,17 @@ mje = $$.uniqueSort(mje);
 };
 }
 /************************* FIN CARGAR MENSAJES DESDE LA ULTIMA CONEXION Y ANTERIORES ******************************/
+/********************************** BORRAR MENSAJES DE LA BASE DE DATOS *******************************************/
+function borrarMensaje(id){
+refMensajes.doc(id).delete()
+.then(
+  function(){
+    console.log("Documento borrado!");
+              }).catch(function(error){
+  console.log("Error al intentar borrar el mensaje: ", error);
+});
+}
+/****************************** FIN BORRAR MENSAJES DE LA BASE DE DATOS *******************************************/
 /************************ AGREGA AL CHAT UN GLOBO DE MENSAJE ENVIADO CON LOS PARAMETROS ***************************/
 function recibirMiMensaje(usuario,m,sinRuta,horaMensaje){
   messages.addMessage({
@@ -609,7 +623,7 @@ traerMensaje(idMensaje,r,m,h);
 // actualizo hora de ultima conexion
 guardarUltimaConexion();
     });
-}
+} 
 /************** FIN ESCUCHAR MENSAJES USA ONSNAPSHOT PARA CAPTURAR CAMBIOS EN COLECCION MENSAJES *********************/
 /************** TRAER MENSAJE UNIFICA LOS RECIBIDOS Y ENVIADOS Y IMPRIME EL MENSAJE QUE LE PASE *******************/
 function traerMensaje(idMensaje,r,m,h){
@@ -640,7 +654,7 @@ if (cargar == "global") {
   var data = {
     ultimaConexion: guardarConexion
   }
-  refUbicaciones.doc("GLOBAL").set(data);
+  refUbicaciones.doc("GLOBAL").update(data);
 console.log("DESDE guardarUltimaConexion "+guardarConexion);
 }
 }
@@ -725,6 +739,23 @@ var horaMensaje = hm.getHours()+":"+hm.getMinutes();
 /********************************************FUNCIONES DE MAPAS*****************************************************/
 /*******************************************************************************************************************/
 /*******************************************************************************************************************/
+/***************************** OBTENER LA DISTANCIA ENTRE DOS UBICACIONES **********************************************/
+ function getDistanciaMetros(lat1,lon1,lat2,lon2){
+        console.log("entro a getDistanciaMetros")
+        rad = function(x) {return x*Math.PI/180;}
+        var R = 6378.137; //Radio de la tierra en km
+        var dLat = rad( lat2 - lat1 );
+        var dLong = rad( lon2 - lon1 );
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(rad(lat1)) *
+        Math.cos(rad(lat2)) * Math.sin(dLong/2) * Math.sin(dLong/2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        //aquí obtienes la distancia en metros por la conversion 1Km =1000m
+        distancia = R * c * 1000;
+        return distancia ;
+       distancia = Math.round(distancia);
+        console.log(distancia);
+      };
+/************************** FIN OBTENER LA DISTANCIA ENTRE DOS UBICACIONES *********************************************/
 /******************************************** MAPA DE HERE CON UI ****************************************************/
 // Aca: https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/map-controls-ui.html
 function mapaConUI(){
@@ -741,7 +772,7 @@ function mapaConUI(){
         document.getElementById('mapContainer'),
         defaultLayers.vector.normal.map,
         {
-            zoom: 16,
+            zoom: 14,
             center: { lng: lon, lat: lat },
               pixelRatio: window.devicePixelRatio || 1
         });
@@ -1093,11 +1124,11 @@ function createResizableCircle(map) {
 if(radioAlerta>=100 && radioAlerta<=800){
 
       circle.setRadius(distanceFromCenterInMeters);
-     if(vistaMapa = 1){
+     if(vistaMapa == 1){
       radioPuntero = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
         console.log(radioPuntero);
                 mostrarRadio(radioPuntero);
-     }else{
+     }else if(vistaMapa == 2){
       radioAlerta = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
         console.log(radioAlerta);
         mostrarRadio(radioAlerta);
@@ -1203,23 +1234,6 @@ console.log(data);
   refUbicaciones.doc(n).set(data);
 };
 /******************************** FIN AGREGAR UBICACION PERSONALIZADA **************************************************/
-/***************************** OBTENER LA DISTANCIA ENTRE DOS UBICACIONES **********************************************/
- function getDistanciaMetros(lat1,lon1,lat2,lon2){
-        console.log("entro a getDistanciaMetros")
-        rad = function(x) {return x*Math.PI/180;}
-        var R = 6378.137; //Radio de la tierra en km
-        var dLat = rad( lat2 - lat1 );
-        var dLong = rad( lon2 - lon1 );
-        var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(rad(lat1)) *
-        Math.cos(rad(lat2)) * Math.sin(dLong/2) * Math.sin(dLong/2);
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        //aquí obtienes la distancia en metros por la conversion 1Km =1000m
-        distancia = R * c * 1000;
-        //return distancia ;
-       distancia = Math.round(distancia);
-        console.log(distancia);
-      };
-/************************** FIN OBTENER LA DISTANCIA ENTRE DOS UBICACIONES *********************************************/
 /****************************** FUNCION QUE MUESTRA EL TOAST DEL RADIO SOBRE EL MAPA ***********************************/
 function mostrarRadio(radio){
 var f7icon = "dot_radiowaves_left_right";
