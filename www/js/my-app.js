@@ -69,6 +69,8 @@ var vistaMapa = 1;
 var radioAlerta = 300;
 var radioPuntero = 300;
 var login = 0;
+var coordsG, behavior, target;
+var idChatPersonalizado;
 // para el autologin con recordar contraseña
 var storage = window.localStorage;
 var us = { "email": "", "clave": "" };
@@ -147,8 +149,110 @@ $$(document).on('page:init', '.page[data-name="mapa"]', function (e) {
 
     panelIzq(); // cargo el panel
 
+
+
+function vistaMapa4(){
+//Agregar el selector de rango
+  //solo puedo modificar el rango de radio
+$$('#tituloMapa').text("Elegir el radio");
+$$('.siguienteMapa').text("Radio ok!");
+$$('.siguienteMapa').on('click',function(){
+  //almaceno el radio
+console.log("radio del puntero: "+radioPuntero);
+console.log("posicion del puntero: lat"+latPuntero+" lon puntero"+lonPuntero);
+  //Aca el prompt para ingresar el nombre
+// EN EL PROMPT TENGO QUE AGREGAR COMO VALUE Y TITULO EL NOMBRE DE LA UBICACION
+  app.dialog.prompt('Puede modificarlo o dejarlo como está:',"Modificar el nombre:", function (name){
+    nombrePuntero = name;
+  guardarUbicac();
+  }, noGuardar() , nombrePuntero);
+
+});
+
+function guardarUbicac(){
+  // UPDATE del radio y el nombre
+var data = {radio : radioPuntero, nombre : nombrePuntero };
+refUbicaciones.doc(idChatPersonalizado).update(data);
+    mainView.router.navigate('/chats/');
+};
+function noGuardar(){
+  // UPDATE del radio
+var data = {radio : radioPuntero };
+refUbicaciones.doc(idChatPersonalizado).update(data);
+      mainView.router.navigate('/chats/');
+};
+
+$$('.cajaUbicacion').addClass('oculto');
+$$('.radioAlerta').removeClass('oculto');
+
+var range = app.range.create({
+  el: '.radioAlerta',
+  step : 5,
+  label : true,
+  min : 100,
+  max : 800,
+  scale : true,
+  scaleSteps : 7,
+  scaaleSubSteps : 4,
+  on: {
+    change: function () {
+        radioPuntero = range.value;
+      console.log('radioPuntero: '+radioPuntero);
+      map.removeObject(circleGroup);
+  circuloModificable(latPuntero,lonPuntero,radioPuntero);
+  console.log("moviendo EL CIRCULO "+latPuntero+" "+lonPuntero);
+mostrarRadio(radioPuntero);
+    }
+  }
+})
+ 
+
+console.log("CREANDO EL CIRCULO "+latPuntero+" "+lonPuntero);
+  circuloModificable(latPuntero,lonPuntero,radioPuntero);
+//ACA FRENO AL PUNTERO
+  marker.draggable = false;
+  console.log("draggable? : "+marker.draggable);
+
+}
+
+function vistaMapa3(){
+  //ANTES DE CARGAR EL MAPA TENGO QUE TRAER LA INFO GUARDADA DE LA BD
+
+refUbicaciones.doc(idChatPersonalizado).get()
+.then(function (doc) {
+latPuntero = doc.data().latitud;
+lonPuntero = doc.data().longitud;
+nombrePuntero = doc.data().nombre;
+radioPuntero = doc.data().radio; 
+console.log("nombre "+nombrePuntero);
+   mapaConUI(latPuntero,lonPuntero); 
+
+///////////////////////ACA AGREGAR PUNTERO DRAGGABLE
+
+$$('#tituloMapa').text(nombrePuntero);
+})
+.catch(function(error){ console.log("Error en la consulta para editar ubicacion personalizada: ", error);});
+
+$$('.siguienteMapa').text("Ubicación ok!");
+$$('.siguienteMapa').on('click',function(){
+
+// ACTUALIZAR LAT Y LON DEL PUNTERO EN LA BD
+
+var data = {latitud : latPuntero , longitud : lonPuntero };
+refUbicaciones.doc(idChatPersonalizado).update(data);
+
+//<...................>/
+    vistaMapa4();
+});
+
+$$('.cajaUbicacion').removeClass('oculto');
+//Saco el selector y agrego el textbox de ubicaciones
+$$('.radioAlerta').addClass('oculto');
+}
+
 function vistaMapa2(){
 /*******************MODIFICAR RADIO DE GLOBAL*****************************/
+   mapaConUI(lat,lon); 
 //Agregar el selector de rango
   //solo puedo modificar el rango de radio
 $$('#tituloMapa').text("Modificar el radio");
@@ -158,25 +262,37 @@ $$('.siguienteMapa').on('click',function(){
 // radioAlerta
 var data = {radio: radioAlerta};
 refUbicaciones.doc('GLOBAL').update(data);
-
+    mainView.router.navigate('/chats/');
 });
 $$('.cajaUbicacion').addClass('oculto');
 $$('.radioAlerta').removeClass('oculto');
+
+var range = app.range.create({
+  el: '.radioAlerta',
+  step : 5,
+  label : true,
+  min : 100,
+  max : 800,
+  scale : true,
+  scaleSteps : 7,
+  scaaleSubSteps : 4,
+  on: {
+    change: function () {
+        radioAlerta = range.value;
+      console.log('radioPuntero: '+radioAlerta);
+      map.removeObject(circleGroup);
+  circuloModificable(lat,lon,radioAlerta);
+  console.log("moviendo EL CIRCULO "+lat+" "+lon);
+mostrarRadio(radioAlerta);
+    }
+  }
+})
 
 $$('#ubicacionAceptada').on('click',function(){
 // guardar los cambios en el rango
 actualizarPerfil("radio");
 });
 
-$$('.radioAlerta').on('range:change', function (e) {
-  var range = app.range.get(e.target);
-radioAlerta = range.value;
-console.log(radioAlerta);
-map.removeObjects(map.getObjects ());
-circuloModificable();
-
-mostrarRadio(radioAlerta);
-});
 }
 
 function vistaMapa1(){
@@ -205,26 +321,39 @@ agregarUbicacionPersonalizada(latPuntero,lonPuntero,nombrePuntero,radioPuntero);
 
 $$('.cajaUbicacion').addClass('oculto');
 $$('.radioAlerta').removeClass('oculto');
+
+var range = app.range.create({
+  el: '.radioAlerta',
+  step : 5,
+  label : true,
+  min : 100,
+  max : 800,
+  scale : true,
+  scaleSteps : 7,
+  scaaleSubSteps : 4,
+  on: {
+    change: function () {
+        radioPuntero = range.value;
+      console.log('radioPuntero: '+radioPuntero);
+      map.removeObject(circleGroup);
+  circuloModificable(latPuntero,lonPuntero,radioPuntero);
+  console.log("moviendo EL CIRCULO "+latPuntero+" "+lonPuntero);
+mostrarRadio(radioPuntero);
+    }
+  }
+})
+ 
+
 console.log("CREANDO EL CIRCULO "+latPuntero+" "+lonPuntero);
-  circuloModificable(latPuntero,lonPuntero);
+  circuloModificable(latPuntero,lonPuntero,radioPuntero);
 //ACA FRENO AL PUNTERO
   marker.draggable = false;
   console.log("draggable? : "+marker.draggable);
 
-$$('.radioAlerta').on('range:change', function (e) {
-  var range = app.range.get(e.target);
-  console.log(range);
-radioPuntero = range.value;
-console.log("Desde el selector de rango: "+radioPuntero);
-  map.removeObject(circleGroup);
-  circuloModificable(latPuntero,lonPuntero);
-  console.log("moviendo EL CIRCULO "+latPuntero+" "+lonPuntero);
-mostrarRadio(radioPuntero);
-});
-
 }
 
 function vistaMapa0(){
+   mapaConUI(lat,lon); 
 /********************SELECCIONAR UBICACION************************/
 // mostrar un mapa donde se puede agregar un puntero escribiendo una dirección 
 // o clickeando el mapa y que sea arrastrable
@@ -256,10 +385,11 @@ if(vistaMapa == 1){
 vistaMapa1();
 }else if(vistaMapa == 0){
 vistaMapa0();
-}else{
+}else if(vistaMapa == 2){
   vistaMapa2();
+}else if(vistaMapa == 3){
+vistaMapa3();
 }
- mapaConUI(); 
 
 })
 /***********************************************************************************************PERFIL USUARIO*/
@@ -270,7 +400,6 @@ cargarDatosUsuario();
      $$('#actualizarPerfil').on('click',function(){
       actualizarPerfil("perfil");
      });
-
 
   //llamada a la carga de avatares dentro del popup dinamicamente
   $$('#modalAvatares').on('click', cargarAvatares);
@@ -353,6 +482,31 @@ $$(document).on('page:init', '.page[data-name="chats"]', function (e) {
     cargarInfoUsuario(email);
     cargarChats();
   cargarDatosUsuario();
+app.on('swipeout',function(el){
+idChatPersonalizado = el.id; //console.log('Swipe al chat con id: '+idElemento);
+// La llamada al click de configuracion solo esta funcionando dentro del evento de swipe
+// capturé el id en swipe y lo paso en el click de configuracion a las vistas de mapas
+$$('.configuracion').on('click', function(){
+console.log(idChatPersonalizado);
+  vistaMapa = 3;
+
+    mainView.router.navigate('/mapa/');
+});
+
+});
+
+app.on('swipeoutDeleted',function(){
+console.log(idChatPersonalizado);
+refUbicaciones.doc(idChatPersonalizado).delete()
+.then(function(){
+  console.log("El chat fue eliminado de la bd");
+}).catch(function(error){
+  console.log("Error al borrar el chat");
+});
+
+});
+
+
 
 $$('#configGeneral').on('click',function(){
   vistaMapa = 2;
@@ -364,10 +518,15 @@ $$('#configGeneral').on('click',function(){
     cargar = "global";
     mainView.router.navigate('/chat-general/');
   });
-  $$('#chatCasa').on('click', function () {
-   
-   getDistanciaMetros(lat,lon,latCerca,lonCerca);
+$$('#ubicacionesFirestore').on('click', function () {
+//Y aca tengo que cargar los datos del chat personalizado para entrar en modo "fantasma"
+    tituloChat = "Chat general";
+    cargar = "global";
+    mainView.router.navigate('/chat-general/');
   });
+
+
+  
 
 $$('#agregarUbicacion').on('click',function(){
   vistaMapa = 0;
@@ -547,11 +706,32 @@ refMensajes.doc(id).delete()
 .then(
   function(){
     console.log("Documento borrado!");
+    //esto elimina el mensaje de la vista de chat tambien // tengo que pasarle un selector como parametro
+    messages.removeMessage(messages);
               }).catch(function(error){
   console.log("Error al intentar borrar el mensaje: ", error);
 });
 }
 /****************************** FIN BORRAR MENSAJES DE LA BASE DE DATOS *******************************************/
+function borrarTodosLosMensajes(){
+// Nada puede malir sal
+refMensajes.where("destinatario" , "==" , "global").get()
+.then(function(querySnapshot){
+                querySnapshot.forEach(function(doc){
+var id = doc.id;
+
+refMensajes.doc(id).delete()
+.then(function(){
+    console.log("Documento borrado!");
+              }).catch(function(error){
+  console.log("Error al intentar borrar el mensaje: ", error);
+});
+}) })
+.catch(function(error){
+  console.log("Error en la consulta: ", error);
+});
+}
+
 /************************ AGREGA AL CHAT UN GLOBO DE MENSAJE ENVIADO CON LOS PARAMETROS ***************************/
 function recibirMiMensaje(usuario,m,sinRuta,horaMensaje){
   messages.addMessage({
@@ -739,8 +919,8 @@ var horaMensaje = hm.getHours()+":"+hm.getMinutes();
 /********************************************FUNCIONES DE MAPAS*****************************************************/
 /*******************************************************************************************************************/
 /*******************************************************************************************************************/
-/***************************** OBTENER LA DISTANCIA ENTRE DOS UBICACIONES **********************************************/
- function getDistanciaMetros(lat1,lon1,lat2,lon2){
+/***************************** OBTENER LA DISTANCIA ENTRE DOS UBICACIONES ******************************************/
+ function getDistanciaMetros(lat1,lon1,lat2,lon2){ // Tomo dos ubicaciones y devuelvo la distancia
         console.log("entro a getDistanciaMetros")
         rad = function(x) {return x*Math.PI/180;}
         var R = 6378.137; //Radio de la tierra en km
@@ -751,14 +931,14 @@ var horaMensaje = hm.getHours()+":"+hm.getMinutes();
         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         //aquí obtienes la distancia en metros por la conversion 1Km =1000m
         distancia = R * c * 1000;
-        return distancia ;
        distancia = Math.round(distancia);
+        return distancia;
         console.log(distancia);
       };
-/************************** FIN OBTENER LA DISTANCIA ENTRE DOS UBICACIONES *********************************************/
-/******************************************** MAPA DE HERE CON UI ****************************************************/
+/************************** FIN OBTENER LA DISTANCIA ENTRE DOS UBICACIONES *****************************************/
+/******************************************** MAPA DE HERE CON UI **************************************************/
+function mapaConUI(latitud,longitud){ // Toma parametros para centrar el mapa en la ubicacion actual
 // Aca: https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/map-controls-ui.html
-function mapaConUI(){
 //Initialize the Platform object:
     var platform = new H.service.Platform({
         'apikey': '0RTLydGJnLLp5DlfAFU0ctJ3CUbIiBHqs4K-qMAxFlY'
@@ -772,13 +952,13 @@ function mapaConUI(){
         document.getElementById('mapContainer'),
         defaultLayers.vector.normal.map,
         {
-            zoom: 14,
-            center: { lng: lon, lat: lat },
+            zoom: 15,
+            center: { lng: longitud, lat: latitud }, // las variables de parametro
               pixelRatio: window.devicePixelRatio || 1
         });
 // MapEvents enables the event system
 // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
-var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 // Create the default UI components
 var ui = H.ui.UI.createDefault(map, defaultLayers);
 
@@ -790,10 +970,9 @@ mapSettings.setAlignment('top-left');
 zoom.setAlignment('top-left');
 scalebar.setVisibility(false); 
 
-
-if(vistaMapa == 1){
+if(vistaMapa == 1 || vistaMapa == 4){
 /*AGREGO UN CIRCULO EDITABLE SOBRE LA POSICION ACTUAL*/
-circuloModificable();
+circuloModificable(latPuntero, lonPuntero,radioPuntero);
 }else if(vistaMapa == 0){
 console.log(vistaMapa);  
 $$('#geocodificamelo').on('click',function(){
@@ -801,16 +980,37 @@ var busqueda = $$('#busquedaUbicacion').val();
 geocodificador(busqueda);
 console.log(busqueda);
 });
-/*AGREGO UN CIRCULO COMUN*/
-//circuloComun();
-// Agrego burbujas de texto
-//bubblesTexto();
 }else if(vistaMapa == 2){
-circuloModificable(lat,lon); 
- }
+
+// https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/marker-objects.html
+
+// using a PNG icon with its natural size (which is 32x32 in this case)
+var pngIcon = "./img/iconos_logo/rojo.png";      
+var icon = new H.map.Icon(pngIcon),
+    coords = {lat: lat, lng: lon},
+    marker = new H.map.Marker(coords, {icon: icon});
+// Add the marker to the map and center the map at the location of the marker:
+map.addObject(marker);
+map.setCenter(coords); // centrar el mapa en una coordenada.
+
+circuloModificable(lat,lon,radioAlerta); 
+
+ }else if(vistaMapa == 3){
+console.log(vistaMapa);  
+$$('#geocodificamelo').on('click',function(){
+var busqueda = $$('#busquedaUbicacion').val();
+geocodificador(busqueda);
+console.log(busqueda);
+});
+coordsG = {lat: latPuntero, lng: lonPuntero};
+addDraggableMarker(map, behavior);
+}
+
+}
+/************************************* FIN DE MAPA DE HERE CON UI **********************************************/
+/************************************TRACKEAR EL CLICK SOBRE EL MAPA********************************************/
 //////////////////////////////////////////////ESTO NO ANDA
 //setUpClickListener(map);
-/**************TRACKEAR EL CLICK SOBRE EL MAPA*********************/
 function setUpClickListener(map) {
   // Attach an event listener to map display
   // obtain the coordinates and display in an alert box.
@@ -832,8 +1032,8 @@ addDraggableMarker(map, behavior);
 */
   });
 }
-/************FIN DE TRACKEAR EL CLICK SOBRE EL MAPA******************/
-/*****************FUNCION INFO BUBBLES CON TEXTO ********************/
+/*******************************FIN DE TRACKEAR EL CLICK SOBRE EL MAPA*******************************************/
+/**********************************FUNCION INFO BUBBLES CON TEXTO ***********************************************/
 function bubblesTexto(){
 
 // Create an info bubble object at a specific geographic location:
@@ -859,12 +1059,10 @@ function openBubble(position, text){
     }
 }
 
-
 }
 
-/********************FIN INFO BUBBLES CON TEXTO**********************/
-var coordsG;
-/************************GEOCODIFICACION*****************************/
+/************************************FIN INFO BUBBLES CON TEXTO*************************************************/
+/*****************************************GEOCODIFICACION*******************************************************/
 function geocodificador(busqueda){
 
 // GEOCODER ES UN SERVICIO DE REST
@@ -889,8 +1087,8 @@ app.request.json(url, {
       latPuntero = latitud;
       lonPuntero = longitud;
       console.log("Se guardo desde la geolocalozacion "+latPuntero+" "+lonPuntero);
-              coordsG = {lat: latPuntero, lng: lonPuntero};
-    }else{
+      coordsG = {lat: latPuntero, lng: lonPuntero};
+      }else{
         coordsG = {lat: latitud, lng: longitud};
 }
 
@@ -906,8 +1104,8 @@ addDraggableMarker(map, behavior);
 }, function(xhr, status) { console.log("error geocodificador: "+status); }   );
 
 };
-/***********************FIN GEOCODIFICACION*****************************/
-/***********************PUNTERO ARRASTRABLE*****************************/
+/****************************************FIN GEOCODIFICACION****************************************************/
+/****************************************PUNTERO ARRASTRABLE****************************************************/
 // https://developer.here.com/documentation/examples/maps-js/markers/draggable-marker
 function addDraggableMarker(map, behavior){
 
@@ -944,8 +1142,12 @@ map.removeObjects(map.getObjects(marker));
       behavior.enable();
     }
 
+if(marker.draggable === true){
 latPuntero = target.b.lat;
 lonPuntero = target.b.lng;
+}else{
+  console.log("The drag event listener has no power in this domains");
+}
 
 console.log("DESDE EL PUNTERO DRAGGABLE: "+latPuntero+" "+lonPuntero);
 geodecodificador(latPuntero,lonPuntero);
@@ -964,8 +1166,8 @@ geodecodificador(latPuntero,lonPuntero);
   }, false);
 };
 
-/***********************PUNTERO ARRASTRABLE*****************************/
-/******************FUNCION INFO BUBBLES EN GRUPOS***********************/
+/***************************************PUNTERO ARRASTRABLE**************************************************/
+/**********************************FUNCION INFO BUBBLES EN GRUPOS********************************************/
 //Esto lo paso Jorge para que podamos agrupar los marcadores
 
 function infoBubbles(){
@@ -991,9 +1193,8 @@ function addInfoBubble(map) {
 addInfoBubble(map);
 }
 
-/*********************FIN INFO BUBBLES EN GRUPOS***********************/
-
-/*****************FUNCION CIRCULO COMUN *******************************/
+/****************************************FIN INFO BUBBLES EN GRUPOS*******************************************/
+/******************************************FUNCION CIRCULO COMUN *********************************************/
 function circuloComun(){
 // https://developer.here.com/documentation/maps/3.1.14.0/dev_guide/topics/geo-shapes.html
 // Agregar el "radio"
@@ -1002,11 +1203,7 @@ var circle = new H.map.Circle({lat: lat, lng: lon}, 300);
 // Add the circle to the map:
 map.addObject(circle);
 }
-/***********************FIN CIRCULO COMUN *****************************/
-
-}
-
-/********************************** FIN DE MAPA DE HERE CON UI ***********************************************/
+/********************************************FIN CIRCULO COMUN ***********************************************/
 /********************************************GEO DECODIFICADOR ***********************************************/
 function geodecodificador(latit,longit){
 //Documentac: https://developer.here.com/documentation/geocoding-search-api/dev_guide/topics-api/code-revgeocode.html
@@ -1035,7 +1232,7 @@ $$('#busquedaUbicacion').val(ubicacionGeodecodificada);
 /********************************************GEO DECODIFICADOR ***********************************************/
 /****************************************FUNCION DRAGGABLE CIRCLE ********************************************/
 // Aca https://developer.here.com/documentation/examples/maps-js/resizable-geoshapes/resizable-circle
-function circuloModificable(latCirculo,lonCirculo){
+function circuloModificable(latCirculo,lonCirculo,radioCirculo){
 /**
  * Adds resizable geo shapes to map
  *
@@ -1044,7 +1241,7 @@ function circuloModificable(latCirculo,lonCirculo){
 function createResizableCircle(map) {
      circle = new H.map.Circle(
         {lat: latCirculo, lng: lonCirculo},
-        radioAlerta,
+        radioCirculo,
         {
           style: {fillColor: 'rgba(120,184,230, 0.7)', lineWidth: 0}
         }
@@ -1052,7 +1249,7 @@ function createResizableCircle(map) {
       circleOutline = new H.map.Polyline(
         circle.getGeometry().getExterior(),
         {
-          style: {lineWidth: 8, strokeColor: 'rgba(42,82,190, 0)'}
+          style: {lineWidth: 10, strokeColor: 'rgba(42,82,190, 0)'}
         }
       ),
       circleGroup = new H.map.Group({
@@ -1121,18 +1318,14 @@ function createResizableCircle(map) {
     // if resizing is alloved, set the circle's radius
     if (evt.target instanceof H.map.Polyline) {
 
-if(radioAlerta>=100 && radioAlerta<=800){
+if(radioCirculo>=100 && radioCirculo<=800){
 
       circle.setRadius(distanceFromCenterInMeters);
-     if(vistaMapa == 1){
-      radioPuntero = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
-        console.log(radioPuntero);
-                mostrarRadio(radioPuntero);
-     }else if(vistaMapa == 2){
-      radioAlerta = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
-        console.log(radioAlerta);
-        mostrarRadio(radioAlerta);
-          }
+  
+      radioCirculo = round5(parseInt(circle.getRadius(distanceFromCenterInMeters)));
+        console.log(radioCirculo);
+                mostrarRadio(radioCirculo);
+    
       // use circle's updated geometry for outline polyline
       var outlineLinestring = circle.getGeometry().getExterior();
       // extract first point of the outline LineString and push it to the end, so the outline has a closed geometry
@@ -1141,6 +1334,8 @@ if(radioAlerta>=100 && radioAlerta<=800){
 
       // prevent event from bubling, so map doesn't receive this event and doesn't pan
       evt.stopPropagation();
+}else if(radioCirculo>100){
+   circle.setRadius(100);
 }
 
     }
@@ -1223,7 +1418,6 @@ app.request.json(url, {
 /********************************FIN DEL MAPA DE JORGE ************************************************/
 /*********************************** AGREGAR UBICACION PERSONALIZADA ***************************************************/
 function agregarUbicacionPersonalizada(latU,lonU,nombreU,radioU){
-var n = nombreU;
   var data = {
         nombre: nombreU,
         latitud: latU,
@@ -1231,7 +1425,7 @@ var n = nombreU;
         radio: radioU
   };
 console.log(data);
-  refUbicaciones.doc(n).set(data);
+  refUbicaciones.add(data);
 };
 /******************************** FIN AGREGAR UBICACION PERSONALIZADA **************************************************/
 /****************************** FUNCION QUE MUESTRA EL TOAST DEL RADIO SOBRE EL MAPA ***********************************/
@@ -1626,7 +1820,7 @@ $$('.panelAyuda').on('click',function(){
 }
 /******************************************* FIN DEL PANEL IZQUIERDO ***************************************************/
 /*********************************************** CARGAR LOS CHATS ******************************************************/
-function cargarChats(){
+function cargarChats(){  
 geodecodificador(lat,lon);
 refUbicaciones = refUsuarios.doc(email).collection('UBICACIONES');
 var hayUbicaciones = 0;
@@ -1635,12 +1829,13 @@ refUbicaciones.get()
   querySnapshot.forEach(function(doc){
 if(doc.id !== "GLOBAL"){
   console.log("data: "+doc.data().nombre);
+var idUbicacion = doc.id;
 $$('#ubicacionesFirestore')
-.append('<li class="swipeout ubicacionPersonalizada"><div class="swipeout-content nombrePersonalizada">'+
+.append('<li class="swipeout ubicacionPersonalizada" id="'+idUbicacion+'"><div class="swipeout-content nombrePersonalizada">'+
   doc.data().nombre+
   '</div><h6 class="nuevoChatPersonalizado">+999</h6>'+
   '<div class="swipeout-actions-right"><a href="#" class="open-more-actions configuracion"><img src="img/config.png"'+
-  ' class="config"></a></div></li>');
+  ' class="config"></a><a href="#" data-confirm="¿Está seguro que quiere eliminar este chat?" class="swipeout-delete">Borrar</a></div></li>');
 hayUbicaciones++;
 quitarAlerta();
 }
@@ -1666,3 +1861,68 @@ function quitarAlerta(){
 quitarAlerta();
 };
 /**************************************** FIN CARGAR LOS CHATS *********************************************************/
+/******************************************* FIREBASE STORAGE **********************************************************/
+function getImage() {   // FOTO DESDE CAMARA
+  navigator.camera.getPicture(onSuccess,onError,
+  {
+      quality: 50,
+      destinationType: Camera.DestinationType.FILE_URI,
+      sourceType: Camera.PictureSourceType.CAMERA
+  });
+}
+
+
+function selImage() {     // SELECCIONA DESDE GALERIA
+  navigator.camera.getPicture(onSuccess,onError,
+  {
+      quality: 50,
+      destinationType: Camera.DestinationType.FILE_URI,
+      sourceType: Camera.PictureSourceType.PHOTOLIBRARY
+  });
+}
+
+
+function onError() {
+        console.log("error camara");
+}
+
+
+function onSuccess(imageData) {
+    var storageRef = firebase.storage().ref();
+    var getFileBlob = function(url, cb) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.responseType = "blob";
+        xhr.addEventListener('load', function() {
+            cb(xhr.response);
+        });
+        xhr.send();
+    };
+
+    var blobToFile = function(blob, name) {
+        blob.lastModifiedDate = new Date();
+        blob.name = name;
+        return blob;
+    };
+
+    var getFileObject = function(filePathOrUrl, cb) {
+        getFileBlob(filePathOrUrl, function(blob) {
+            cb(blobToFile(blob, 'test.jpg'));
+        });
+    };
+
+    getFileObject(imageData, function(fileObject) {
+        var uploadTask = storageRef.child('images/test.jpg').put(fileObject);
+
+        uploadTask.on('state_changed', function(snapshot) {
+            console.log(snapshot);
+        }, function(error) {
+            console.log(error);
+        }, function() {
+            var downloadURL = uploadTask.snapshot.downloadURL;
+            console.log(downloadURL);
+            // handle image here
+        });
+    });
+
+}

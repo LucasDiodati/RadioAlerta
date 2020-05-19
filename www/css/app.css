@@ -511,7 +511,8 @@ margin-top: -3.8em;
 	padding-right: 0px;	
 }
 .radioAlerta{
-margin-top: -3.8em;
+margin: -3.8em 1em 0em 1em;
+padding-bottom: 2.5em; 
 }
 
 .wrapper{
