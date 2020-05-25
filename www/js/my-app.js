@@ -83,9 +83,9 @@ var fila = 1;
 var avatarN = 1;
 /************PARA LOS QUERIDOS MENSAJES DE FRAMEWORK 7*************************/
 var messages, ultimaConexion, rUsuario, rAvatar, r,messagebar, responseInProgress;
-var timestamp = Date.now();
 var contadorGlobal = 0;
 var mensajesCargados;
+var guardarConexion;
 /******************************************************************************/
 /************************************************************************************************DEVICE READY*/
 // Handle Cordova Device Ready Event
@@ -555,9 +555,10 @@ if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== me
     },
     tailMessageRule: function (message, previousMessage, nextMessage) {
       if (message.isTitle) return false;
-if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== message.name) return true;
+if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== message.name) return true; 
       return false;
-    }
+    },
+
   });
   // Init Messagebar
   messagebar = app.messagebar.create({
@@ -568,6 +569,7 @@ if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== me
 traerUltimaConexion();
 //Esto es para que si se agrega un mensaje nuevo me lo traiga
  escucharMensajes();
+ 
 })
   /***************************************************************************************************************/
   /***************************************************************************************************************/
@@ -580,7 +582,7 @@ traerUltimaConexion();
 function cargarMensajes(timestamp){
 var d = new Date(timestamp);
 mensajesCargados = new Array();
-var i = 0;
+var i;
 ultimaConexion =
 d.getDate() + '/' + (d.getMonth()+1) +'/' + d.getFullYear()+' - '+d.getHours()+':'+d.getMinutes()+'.'+d.getSeconds();
 
@@ -602,104 +604,87 @@ console.log("desde la query al user tome el radio: "+radioAlerta);
  console.log("Le mensaje de error: "+error);
 });
 
-// asi estaba antes
-// refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).orderBy("fecha","asc").get() 
-//refMensajes.where("destinatario" , "==" , "global").where("fecha","<",timestamp).orderByChild("fecha").get()
 refMensajes.where("destinatario" , "==" , "global").orderBy("fecha","asc").get()
 .then(function(querySnapshot){
                 querySnapshot.forEach(function(doc){
                     var m = doc.data().mensaje;
                     var r = doc.data().remitente;
+                    var u = doc.data().usuario;
+                    var a = doc.data().avatar;
                     var la = doc.data().latitud;
                     var lo = doc.data().longitud;
                     var h = doc.data().fecha;
+                    var idMensaje = doc.id;
                     var hm = new Date(h);
-                    var horaMensaje = hm.getHours()+":"+hm.getMinutes();
+                    var horaMensaje =  hm.getDate() + '/' + (hm.getMonth()+1) +'/' + hm.getFullYear()+' - '+hm.getHours()+':'+hm.getMinutes();
+
 // Aca voy a usar el radio con la funcion de distancias y calculo si tomo el mensaje o no 
 distancia = getDistanciaMetros(lat,lon,la,lo);
 if (distancia>radioAlerta) {
   console.log("el mensaje "+doc.id+" esta fuera de tu radio");
 }else{
-
-                    if(r == email){
-                      // mensaje enviado
-                       recibirMiMensaje(usuario,m,sinRuta,horaMensaje)
-                    }else{
-                          //console.log("Desde la consulta te digo el email: "+r);
-                          //traer nick y avatar del remitente
-                          refUsuarios.doc(r).get()
-                          .then(function(doc){
-                          rUsuario = doc.data().usuario;
-                          //console.log("from la consulta "+doc.data().usuario);
-                          rAvatar = doc.data().avatar;
-                          // mensaje recibido
-                          recibirMensajeYa(rUsuario,m,rAvatar,horaMensaje)
-                          })
-                          .catch(function(error){
-                          console.log("Error en la consulta: ", error);
-                          });
-                    }   
-// Voy a usar el array para mostrar los datos por consola de forma ordenada
-                    mensajesCargados[i] = {};
-                    mensajesCargados[i]['remitente'] = r;
-                    mensajesCargados[i]['mensaje'] = m;
-                    mensajesCargados[i]['latitud'] = la;
-                    mensajesCargados[i]['longitud'] = lo;
-                    mensajesCargados[i]['fecha'] = h;
-                    mensajesCargados.push(mensajesCargados[i]);
-                    mensajesCargados.sort(function(x, y){
-                                                  return x.timestamp - y.timestamp;
-                                                  });
-                    i++;
-
-
-
+recibirCualquierMensaje(m,r,h,horaMensaje,idMensaje,u,a);
 
 }
-
-
-                });
-/////////// Aca voy a hacer un for con los mensajes cargados del array
-console.log("DESDE FUERA DEL FOREACH CARGO LOS "+i+" MENSAJES RUSTICAMENTE ORDENADOS CON UN FOR Y UN ARRAY");
-        for (var e = 0; e < mensajesCargados.length-1; e++) {
-        console.log(mensajesCargados[e]);
-
-        var m = mensajesCargados[e]['mensaje'];
-        var r = mensajesCargados[e]['remitente'];
-        var la = mensajesCargados[e]['latitud'];
-        var lo = mensajesCargados[e]['longitud'];
-        var h = mensajesCargados[e]['fecha'];
-        var hm = new Date(h);
-        var horaMensaje = hm.getHours()+":"+hm.getMinutes();
-
-                    if(r == email){
-                    // mensaje enviado
-                    //recibirMiMensaje(usuario,m,sinRuta,horaMensaje)
-                    }else{ 
-                    //traer nick y avatar del remitente
-                    refUsuarios.doc(r).get()
-                    .then(function(doc){
-                                      var rUsuario = doc.data().usuario;
-                                      //console.log("from la consulta "+doc.data().usuario);
-                                      var rAvatar = doc.data().avatar;
-                                      // mensaje recibido
-                                     // recibirMensajeYa(rUsuario,m,rAvatar,horaMensaje)
-                                      })
-                    .catch(function(error){
-                                      console.log("Error en la consulta: ", error);
-                                      });
-                    }
-        };
+});
 })
 .catch(function(error){
   console.log("Error en la consulta: ", error);
 });
 // aca deberia imprimir la fecha de ultima conexion y un separador
 // tambien un focus() en el primer mensaje que cargue
-//recibirMensajeYa("USUARIO SEPARADOR","MENSAJE, MENSAJE LALALALALALALA", "/img/min/40.png");
 };
 }
 /************************* FIN CARGAR MENSAJES DESDE LA ULTIMA CONEXION Y ANTERIORES ******************************/
+/******************************* RECIBO LOS MENSAJES DE FORMA ORDENADA DE LA BD ***********************************/
+function recibirCualquierMensaje(m,r,h,horaMensaje,idMensaje,u,a){
+var tipoM;
+var usuarioM = u;
+var avatarM = a;
+ if(r == email){
+tipoM = "sent";
+usuarioM = usuario;
+avatarM = sinRuta;
+}else{
+tipoM = "received";  
+}
+
+messages.addMessage({
+    text: m,
+    type: tipoM,
+    name: '@'+usuarioM,
+    avatar: avatarM,
+    textFooter: horaMensaje,
+    cssClass: idMensaje
+  });
+
+refMensajes.where("id" , "==" , "idMensaje").get().then(function(doc){
+console.log(idMensaje);
+
+              //traer nick y avatar del remitente
+              refUsuarios.doc(r).get()
+              .then(function(doc){
+              usuarioM = doc.data().usuario;
+              avatarM = doc.data().avatar;
+              console.log("query: "+  usuarioM);     
+
+// Despues de cargar los mensajes actualizo la info de remitente
+$$('.'+idMensaje+' .message-name').text("@"+usuarioM);
+$$('.'+idMensaje+' .message-avatar').css('background-image','url("'+ avatarM +'")');
+
+              })
+              .catch(function(error){
+              console.log("Error en la consulta al usuario: ", error);
+
+              });
+    
+})
+            .catch(function(error){
+              console.log("Error en la consulta del id de mensaje: ", error);
+              });
+guardarUltimaConexion();
+}
+/*************************** FIN RECIBO LOS MENSAJES DE FORMA ORDENADA DE LA BD ***********************************/
 /********************************** BORRAR MENSAJES DE LA BASE DE DATOS *******************************************/
 function borrarMensaje(id){
 refMensajes.doc(id).delete()
@@ -737,7 +722,7 @@ function recibirMiMensaje(usuario,m,sinRuta,horaMensaje){
   messages.addMessage({
     text: m,
     type: 'sent',
-    textHeader: '@'+usuario,
+    name: '@'+usuario,
     avatar: sinRuta,
     textFooter: horaMensaje
   });
@@ -749,7 +734,7 @@ function recibirMiMensaje(usuario,m,sinRuta,horaMensaje){
     messages.addMessage({
       text: mensaje,
       type: 'received',
-      textHeader: '@'+remitente,
+      name: '@'+remitente,
       avatar: avatar,
       textFooter: horaMensaje
     });
@@ -769,6 +754,8 @@ timestamp = Date.now();
 var data = {
   mensaje: mensaje,
   remitente: email,
+  avatar: sinRuta,
+  usuario: usuario,
   fecha: timestamp,
   latitud: lat,
   longitud: lon,
@@ -786,22 +773,25 @@ refMensajes.add(data)
 /****************** ESCUCHAR MENSAJES USA ONSNAPSHOT PARA CAPTURAR CAMBIOS EN COLECCION MENSAJES *********************/
 function escucharMensajes(){
 // LA CARGA DE MENSAJES NUEVOS 
-refMensajes.where("fecha",">",timestamp).onSnapshot(function(querySnapshot) {
+refMensajes.where("fecha",">","guardarConexion").onSnapshot(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
-
  var idMensaje = doc.id;
-timestamp = Date.now();
-console.log("El timestamp "+timestamp);
+
+console.log("El timestamp "+guardarConexion);
 var m = doc.data().mensaje;
 var r = doc.data().remitente;
 console.log("ID DEL MENSAJE ONSNAPSHOT: "+idMensaje);
 var h = doc.data().fecha;
-traerMensaje(idMensaje,r,m,h);
+
+              traerMensaje(idMensaje,r,m,h);
+
+
+
         console.log("Tenes nuevos mensajes!");
         contadorGlobal++;
-        });
 // actualizo hora de ultima conexion
 guardarUltimaConexion();
+        });
     });
 } 
 /************** FIN ESCUCHAR MENSAJES USA ONSNAPSHOT PARA CAPTURAR CAMBIOS EN COLECCION MENSAJES *********************/
@@ -828,7 +818,7 @@ recibirMensajeYa(rUsuario,m,rAvatar,horaMensaje)
 /*********** FIN TRAER MENSAJE UNIFICA LOS RECIBIDOS Y ENVIADOS Y IMPRIME EL MENSAJE QUE LE PASE ******************/
 /******************************* GUARDAR EN BD LA ULTIMA CONEXION AL CHAT ******************************************/
 function guardarUltimaConexion(){
-var guardarConexion = Date.now();
+guardarConexion = Date.now();
 
 if (cargar == "global") {
   var data = {
@@ -888,7 +878,7 @@ cargarMensajes(doc.data().ultimaConexion);
 /**************************** FIN RECIBIR MENSAJE (FUNCION DE FRAMEWORK 7) *******************************************/
 /******************************* ENVIAR MENSAJE (FUNCION DE FRAMEWORK 7) *********************************************/
 function enviarMensaje(){
-  timestamp = Date.now();
+  var timestamp = Date.now();
   var hm = new Date(timestamp);
 var horaMensaje = hm.getHours()+":"+hm.getMinutes();
   // Send Message
@@ -903,7 +893,7 @@ var horaMensaje = hm.getHours()+":"+hm.getMinutes();
     messages.addMessage({
       text: mensaje,
       type: 'sent',
-      textHeader: '@'+usuario,
+      name: '@'+usuario,
       avatar: sinRuta,
       textFooter: horaMensaje
     });
