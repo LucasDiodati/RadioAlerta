@@ -1,21 +1,18 @@
-# Framework 7 Template - Version 5.4.2
+# Proyecto final del curso Mobile 2020 de Comunidad IT
 
-## Framework7 
-
-Framework7 app created with following options:
+## Aplicación mobile hibrida desarrollada con las siguientes tecnologías:
 
 ```
-phonegap create MYAPP --template f7-v542
-
-OR
-
-cordova create MYAPP --template f7-v542 
+Apache Cordova
+Jquery
+Framework 7 -v 5.4.2
+Firebase
 ```
+## **Descargar** la última versión:
+![QR de RadioAlerta](https://build.phonegap.com/apps/3940133/qrcode.png)
 
-
-## Documentation & Resources
-
-* [Framework7 Core Documentation](https://framework7.io/docs/)
-* [Framework7 Icons Reference](https://framework7.io/icons/)
-* [Community Forum](https://forum.framework7.io)
-
+## Documentación y recursos
+* [Apache cordova - Phonegap](https://cordova.apache.org/)
+* [Framework7 Core - Documentación](https://framework7.io/docs/)
+* [JQuery](https://api.jquery.com/)
+* [Firebase Docs](https://firebase.google.com/docs)
