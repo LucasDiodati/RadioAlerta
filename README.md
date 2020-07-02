@@ -9,7 +9,7 @@ Framework 7 -v 5.4.2
 Firebase
 ```
 ## **Descargar** la última versión:
-![QR de RadioAlerta](https://build.phonegap.com/apps/3940133/qrcode.png)
+> [Descargar .apk Aqui](https://build.phonegap.com/apps/3940133/install/aFH89MYCzVMSvd7oyCeB) 
 
 ## Documentación y recursos
 * [Apache cordova - Phonegap](https://cordova.apache.org/)
