@@ -89,7 +89,44 @@ Some notes:
                     </div>
                   </div>
                 </div>
-                <div class="page-content">Texto de ayuda para visitantes y usuarios</div>
+                <div class="page-content">
+<section id="inicioSeccion">
+<h3>#INICIO:</h3> 
+<h4>1. ¿Qué es Radio alerta?</h4>
+<p>Radio alerta es una aplicación de chat geolocalizado que toma la ubicación de tu dispositivo y permite comunicarte con otros usuarios que tengan la aplicación.</p>
+<h4>2. ¿Cómo funciona?</h4>
+<p>Al crear tu cuenta la aplicación captura tu ubicación en tiempo real para el chat general. Antes de comenzar a chatear con personas cerca tuyo puedes configurar un radio de alcance entre 100 y 800 metros para chatear con otros usuarios dentro de ese radio.</p>
+<h4>3. ¿Cuánto cuesta?</h4>
+<p>El uso de la aplicación es totalmente gratis y lo será siempre.</p>
+</section>
+<section id="seccionNuevo">
+<h3>#CREAR CUENTA:</h3>  
+<h4>1. ¿Porqué mi email?</h4>
+<p>Para poder autenticar tu cuenta es necesario que ingreses tu email para poder validar tu cuenta. </br> Utilizaremos tu email solamente para validar tu cuenta y gestiones de seguridad de tu cuenta. Jamás enviaremos emails innecesarios sin tu consentimiento ni lo divulgaremos.</p>
+<h4>2. ¿Porqué no puedo subir una foto de perfil?</h4>
+<p>Radio alerta está creado con la finalidad de poder comunicarse con usuarios sin la necesidad de comprometer tu información personal ni revelar tu identidad.</p>
+<h4>3. ¿Porqué mi teléfono?</h4>
+<p>En caso de perder acceso a tu cuenta podremos validar la propiedad de tu cuenta a través de este medio. </br> Jamás utilizaremos tu información personal por otro motivo ni lo divulgaremos. </p>
+<h4>4. ¿Para que sirve el nombre de usuario?</h4>
+<p> El nombre de usuario es tu nombre dentro de la aplicación. Junto con el avatar, es la única información que se muestra de tu persona para mantener tu privacidad y anonimato.</p>
+</section>
+<section id="seccionLogin">
+<h3>#INICIAR SESIÓN:</h3>
+<h4>1. No puedo acceder a mi cuenta</h4>
+<p>Podes recuperar el acceso a tu cuenta escribiéndonos a <a href="mailto:dev.radioalerta@gmail.com">dev.radioalerta@gmail.com</a></p>
+</section>
+<section id="seccionChats">
+<h3>#CHATS:</h3>
+<h4>1. ¿Qué es el "Radio actual"?</h4>
+<p>El radio actual es un chat que toma todos los mensajes que esten dentro del radio establecido en base a tu ubicación actual.</p>
+<h4>2. ¿Porqué no veo un mensaje mio en el radio actual?</h4>
+<p> Los mensajes que envías dentro del radio actual se almacenan en la ubicación que tenías al momento de enviar el mensaje. Si te encuentras fuera de alcance de tus propios mensajes no los podrás ver.</p>
+<h4>3. ¿Qué son las ubicaciones personalizadas?</h4>
+<p>Las ubicaciones personalizadas son chats donde a demás de establecer el radio puedes elegir la ubicación y personalizar un nombre para poder chatear con los usuarios que esten dentro del radio de tu ubicación personalizada como si estuvieras en ese lugar.</p>
+<h4>4. ¿Entonces cómo se que los otros usuarios están realmente dentro de mi radio?</h4>
+<p> Los mensajes enviados desde los chats personalizados aparecen como "modo fantasma", indicando que el usuario no se encuentra realmente en esa ubicación.</p>
+</section>
+              </div>
               </div>
             </div>
           </div>
@@ -145,8 +182,8 @@ Some notes:
   <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
   <script>
     // Your web app's Firebase configuration
-      var firebaseConfig = {
-        apiKey: "AIzaSyDEf86PdpAp1Ql2W-3fGr6v1spNIFFI7-M",
+      var firebaseConfig = { // ocultar para produccion
+        apiKey: "AIzaSyDEf86PdpAp1Ql2W-3fGr6v1spNIFFI7-M", 
         authDomain: "radioalerta-537e6.firebaseapp.com",
         databaseURL: "https://radioalerta-537e6.firebaseio.com",
         projectId: "radioalerta-537e6",
